@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>MosquitoTM</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <script src="js/properties.js"></script>
+</head>
+<body>
+
+<div class="container">
+	<div class="row" style="margin-top:20%">
+		<div class="col-md-4 offset-md-4">
+		  	<form id="loginForm" method="post">
+	  			<h2 class="text-center">MosquitoTM</h2>
+	  			<feildset>
+		  			<div class="form-group">
+		  				<input type="email" id="email" name="email" class="form-control" placeholder="Enter email" required="true">
+		  			</div>
+		  			<div class="form-group">
+		  				<input type="password" id="password" name="password" class="form-control" placeholder="Enter password" required="true">
+		  			</div>
+					<div class="form-row">
+						<div class="col-12">
+							<p id="status" style="color:red;" class="d-none"></p>
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="col-6">
+							<input type="button" id="sign_up" class="btn btn-info" value="Sign up">
+						</div>
+						<div class="col-6">
+							<input type="button" id="submit"  class="btn btn-success" style="float:right" value="Sign in">
+						</div>
+					</div>
+		  		</feildset>
+		  	</form>
+	  </div>
+  	</div>
+</div>
+
+<script type="text/javascript">
+	var userId = 0;
+	$("#sign_up").click(function() {
+		window.location.href = 'registration.html';
+	});
+
+	$("#submit").click(function() {
+		// this object will be converted to JSON
+		var user = {
+			email: $("#email").val(),
+			password: $("#password").val()
+		}
+		$.ajax({
+		    type: "POST",
+		    url: properties.API_HOST + properties.API_ROOT + "/login",
+		    contentType: "application/json; charset=utf-8",
+		    crossDomain: true,
+    		success: function(data){
+		    	//get "email" field from JSON response
+		    	localStorage['firstName'] = data.firstName;
+				localStorage['lastName'] = data.lastName;
+				
+		    	window.location.href = 'my-work.html';
+		    },
+		    error:function (xhr, ajaxOptions, thrownError){
+				switch (xhr.status) {
+					case 401:
+						console.log(xhr.status);
+						$("#status").removeClass("d-none");
+						$("#status").text("Login or password is not correct.");
+						break;
+					case 500:
+						$("#status").removeClass("d-none");
+						$("#status").text("Internal server error...Try again later.");
+						break;
+	                default:
+                        $("#status").removeClass('d-none');
+                        $("#status").text('Something is wrong');
+                        break;
+				}
+			}, 
+			data: JSON.stringify(user)
+		});
+	});
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="js/properties.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="row" style="margin-top:10%">
+        <div class="col-md-4 offset-md-4">
+            <form id="loginForm" method="post">
+                <h2 class="text-center">Registration on MosquitoTM</h2>
+                <feildset>
+                    <div class="form-group">
+                        <input type="email" id="email" name="email" class="form-control" placeholder="Enter email" required="true">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="firstName" name="firstName" class="form-control" placeholder="Enter first name" required="true">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="lastName" name="lastName" class="form-control" placeholder="Enter last name" required="true">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="password" name="password" class="form-control" placeholder="Enter password" required="true">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Confirm password" required="true">
+                    </div>
+                    <div class="form-row">
+                        <div class="col-12">
+                            <p id="status" style="color:red;" class="d-none"></p>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-6">
+                            <input type="button" id="submit" class="btn btn-info" value="Register">
+                        </div>
+                    </div>
+                </feildset>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+	var userId = 0;
+    function validate(user) {
+        if(user.password == user.confirmPassword)
+            return true;
+        else
+            return false;
+    }
+    $("#submit").click(function() {
+		// this object will be converted to JSON
+		var user = {
+			email: $('#email').val(),
+			firstName: $('#firstName').val(),
+            lastName: $('#lastName').val(),
+            password: $('#password').val(),
+            confirmPassword: $('#confirmPassword').val()
+		}
+        if(validate(user) == false) {
+            $("#status").removeClass('d-none');
+            $("#status").text('Incorrect data.');
+            return;
+        }
+
+		$.ajax({
+		    type: "POST",
+		    url: properties.API_HOST + properties.API_ROOT + "/registration",
+		    contentType: "application/json; charset=utf-8",
+		    dataType: "json",
+		    success: function(data){
+		    	//get "email" field from JSON response
+		    	localStorage['firstName'] = data.firstName;
+                localStorage['lastName'] = data.lastName;
+                window.location.href = 'my-work.html';
+		    },
+		    error:function (xhr, ajaxOptions, thrownError){
+				switch (xhr.status) {
+					case 403:
+						$("#status").removeClass('d-none');
+                        $("#status").text('User with such email already exists');
+                        break;
+                    default:
+                        $("#status").removeClass('d-none');
+                        $("#status").text('Something is wrong');
+                        break;
+				}
+			},
+		    data: JSON.stringify(user)
+		});
+	});
+
+</script>
+</body>
+
+</html>
