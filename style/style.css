@@ -1,0 +1,15 @@
+.nav-link {
+	color:white;
+}
+
+.nav-link:hover {
+	color:white;
+}
+.nav-link.active {
+	background-color: none !important;
+}
+
+.dropdown-item:active {
+	background-color: #f8f9fa;
+	color: black;
+}
