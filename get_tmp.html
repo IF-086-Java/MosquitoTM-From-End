@@ -1,0 +1,13 @@
+$.ajax({ 
+		    type: 'GET', 
+		    url: 'json/getMyWorkSubTasks'+ currentAccButton.id +'.json', 
+		    //data: { get_param: 'value' }, 
+		    dataType: 'json',
+		    success: function (data) { 
+		    	$.each(data, function(index, element) {
+		            panel.innerHTML = panel.innerHTML +
+		            	'<button class="accordion" id="' + element.id + '">' + element.name + '</button>' +
+		            	'<div class="panel"></div>';
+		        });
+		    }
+			});

@@ -1,0 +1,88 @@
+<!-- Modal -->
+<div id="projectDetailsModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Details</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="name">Name:</label>
+                </div>
+                <div class="col-md-9">
+                    <input type="text" readonly="true" id="details-name" name="details-name" class="form-control" placeholder="Enter project name" required="true">
+                </div>
+            </div>    
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="name">Assignee:</label>
+                </div>
+                <div class="col-md-9">
+                    <input type="text" readonly="true" id="details-assignee" name="details-assignee" class="form-control" placeholder="Enter assignee" required="true">
+                </div>
+            </div>    
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="details-priority">Priority:</label>
+                </div>
+                 <div class="col-md-9">
+                       <input type="text" readonly="true" id="details-priority" name="details-priority" class="form-control" placeholder="Enter priority" required="true">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="prioritySelect">Status:</label>
+                </div>
+                 <div class="col-md-9">
+                    <input type="text" readonly="true" id="details-status" name="details-status" class="form-control" placeholder="Enter status" required="true">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="details-estimation">Estimation:</label>
+                </div>
+                <div class="col-md-9">
+                    <input type="number" readonly="true" id="details-estimation" name="details-estimation" class="form-control" placeholder="Input estimation" required="true">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="details-remaining">Remaining:</label>
+                </div>
+                <div class="col-md-9">
+                    <input type="number" readonly="true" id="details-remaining" name="details-remaining" class="form-control" placeholder="Input remaining" required="true">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="details-logged">Logged:</label>
+                </div>
+                <div class="col-md-9">
+                    <input type="number" readonly="true" id="details-logged" name="details-logged" class="form-control" placeholder="Input logged" required="true">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <p id="status" style="color:red;" class="d-none"></p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <input type="button" id="comments-btn" class="btn btn-info" value="Comments">
+                </div>
+                 <div class="col-md-3">
+                    <input type="button" id="log-works-btn" class="btn btn-info" value="Log vorks">
+                </div>
+                 <div class="col-md-3 offset-md-3">
+                    <input type="button" id="edit-btn" class="btn btn-success" style="min-width: 80px" value="Edit">
+                </div>
+
+            </div>
+
+      </div>
+    </div>
+  </div>
+</div>
