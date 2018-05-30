@@ -10,7 +10,7 @@ var properties = {
 		var currentUserId = '';
 		if(fileName == 'my-projects.html') // if not - dont use ownerId param
 			var currentUserId = localStorage['userId'] == null ? '' : localStorage['userId']; //TODO get from localStorage['userId']
-		
+		console.log(localStorage['userId'] == null ? '' : localStorage['userId'])
 		var statusId = '';
 		switch(filter){
 			case 'all' : statusId = '';
@@ -26,7 +26,7 @@ var properties = {
 		$.ajax({ 
 		    'async': false,
 		    type: 'GET', 
-		    url: properties.API_HOST + properties.API_ROOT + "/tasks/owners?status_id=" + statusId + "&ownerId=" + currentUserId,  //TODO
+		    url: properties.API_HOST + properties.API_ROOT + "/tasks/owners?status_id=" + statusId + "&owner_id=" + currentUserId,  //TODO
 		    //data: { get_param: 'value' }, 
 		    dataType: 'json',
 		    success: function (data) { 
@@ -150,7 +150,7 @@ var properties = {
 		$.ajax({ 
 		    'async': false,
 		    type: 'GET', 
-		    url: properties.API_HOST + properties.API_ROOT + "/tasks/workers?status_id=" + statusId + "&workerId=" + currentUserId,  //TODO
+		    url: properties.API_HOST + properties.API_ROOT + "/tasks/workers?status_id=" + statusId + "&worker_id=" + currentUserId,  //TODO
 		    //data: { get_param: 'value' }, 
 		    dataType: 'json',
 		    success: function (data) { 

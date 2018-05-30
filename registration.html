@@ -80,6 +80,7 @@
 		    	//get "email" field from JSON response
 		    	localStorage['firstName'] = data.firstName;
                 localStorage['lastName'] = data.lastName;
+                localStorage['userId'] = data.userId;
                 window.location.href = 'my-work.html';
 		    },
 		    error:function (xhr, ajaxOptions, thrownError){

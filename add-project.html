@@ -12,17 +12,17 @@
         <form id="addProjectForm" method="post">
                 <feildset>
                     <div class="form-group">
-                        <label for="name">Name:</label>
-                        <input type="text" id="name" name="name" class="form-control" placeholder="Enter project name" required="true">
+                        <label for="add-project-name">Name:</label>
+                        <input type="text" id="add-project-name" name="add-project-name" class="form-control" placeholder="Enter project name" required="true">
                     </div>                   
                     <div class="form-group">
-                        <label for="prioritySelect">Priority:</label>
-                        <select class="form-control" id="prioritySelect">
+                        <label for="add-project-priority-select">Priority:</label>
+                        <select class="form-control" id="add-project-priority-select">
                         </select>
                       </div>
                     <div class="form-group">
-                        <label for="prioritySelect">Estimation:</label>
-                        <input type="number" id="estimation" name="estimation" class="form-control" placeholder="Input estimation" required="true">
+                        <label for="add-project-">Estimation:</label>
+                        <input type="number" id="add-project-estimation" name="add-project-estimation" class="form-control" placeholder="Input estimation" required="true">
                     </div>
                     <div class="form-row">
                         <div class="col-12">
@@ -31,7 +31,7 @@
                     </div>
                     <div class="form-row">
                         <div class="col-md-12">
-                            <input type="button" id="submit" class="btn btn-info" style="float: right;" value="Create">
+                            <input type="button" id="add-project-submit" class="btn btn-info" style="float: right;" value="Create">
                         </div>
                     </div>
                 </feildset>
@@ -51,13 +51,46 @@
         //data: { get_param: 'value' }, 
         dataType: 'json',
         success: function (data) { 
-            $('#prioritySelect').empty();
+            $('#add-project-priority-select').empty();
             $.each(data, function(index, element) {
-                $('#prioritySelect').append(
-                  '<option>' + element.title + '</option>'
+                $('#add-project-priority-select').append(
+                  '<option id="'+element.id+'">' + element.title + '</option>'
                 );
             });
         }
     });
+  });
+
+  $("#add-project-submit").click(function(event) {
+  	var currentUserId = localStorage['userId'] == null ? null : localStorage['userId']; //TODO get from localStorage['userId']
+	var task = {
+			name: $('#add-project-name').val(),
+			priorityId: $('#add-project-priority-select').children(":selected").attr("id"),
+            estimation: $('#add-project-estimation').val(),
+            parentId: null,
+            ownerId: currentUserId,
+            workerId: currentUserId,
+            statusId: 1
+		}
+		console.log(JSON.stringify(task));
+        
+		$.ajax({
+		    type: "POST",
+		    url: properties.API_HOST + properties.API_ROOT + "/tasks",//TODO
+		    contentType: "application/json; charset=utf-8",
+		    dataType: "json",
+		    success: function(data){
+		    	window.location.href = 'my-projects.html';
+		    },
+		    error:function (xhr, ajaxOptions, thrownError){
+				switch (xhr.status) {
+                    default:
+                        $("#status").removeClass('d-none');
+                        $("#status").text('Something is wrong on server');
+                        break;
+				}
+			},
+		    data: JSON.stringify(task)
+		});
   });
 </script>
