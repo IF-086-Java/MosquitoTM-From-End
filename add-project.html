@@ -1,10 +1,10 @@
 <!-- Modal -->
 <div id="myModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
-    <!-- Modal content-->
+    
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title">Add project</h4>
+        <h4 class="modal-title text-center">Add project</h4>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
@@ -12,18 +12,29 @@
         <form id="addProjectForm" method="post">
                 <feildset>
                     <div class="form-group">
-                        <label for="add-project-name">Name:</label>
+                        <label for="add-project-name" class="font-weight-bold">Name:</label>
                         <input type="text" id="add-project-name" name="add-project-name" class="form-control" placeholder="Enter project name" required="true">
                     </div>                   
                     <div class="form-group">
-                        <label for="add-project-priority-select">Priority:</label>
+                        <label for="add-project-priority-select" class="font-weight-bold">Priority:</label>
                         <select class="form-control" id="add-project-priority-select">
                         </select>
                       </div>
                     <div class="form-group">
-                        <label for="add-project-">Estimation:</label>
+                        <label for="add-project-estimation" class="font-weight-bold">Estimation:</label>
                         <input type="number" id="add-project-estimation" name="add-project-estimation" class="form-control" placeholder="Input estimation" required="true">
                     </div>
+
+                    <div class="form-group">
+                    	<label for="specializations" class="font-weight-bold">Specializations:</label>
+                    	<select class="form-control" id="specializations"></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="assign-to" class="font-weight-bold">Assign to:</label>
+                        <select class="form-control" id="assign-to">
+                        </select>
+                      </div>
                     <div class="form-row">
                         <div class="col-12">
                             <p id="status" style="color:red;" class="d-none"></p>
@@ -31,7 +42,7 @@
                     </div>
                     <div class="form-row">
                         <div class="col-md-12">
-                            <input type="button" id="add-project-submit" class="btn btn-info" style="float: right;" value="Create">
+                            <input type="button" id="add-project-submit" class="btn btn-info" style="float: right;" value="Create Project">
                         </div>
                     </div>
                 </feildset>
@@ -44,19 +55,121 @@
 
 <script type="text/javascript">
   $( document ).ready(function() {
+  	var properties = {
+  /*API_HOST: 'http://ec2-34-207-88-221.compute-1.amazonaws.com:8080',
+  API_ROOT: '/MosquitoTM'*/
+  API_HOST: 'http://localhost:8080/',
+  API_ROOT: 'api/'
+};
+	console.log("TOKEN: " + sessionStorage.getItem('token'))
+	
     $.ajax({ 
         'async': false,
         type: 'GET', 
-        url: 'json/priority.json',  //TODO
-        //data: { get_param: 'value' }, 
+        url: properties.API_HOST + properties.API_ROOT + 'priorities',
+        headers: {"Authorization": sessionStorage.getItem('token')},
         dataType: 'json',
         success: function (data) { 
             $('#add-project-priority-select').empty();
             $.each(data, function(index, element) {
                 $('#add-project-priority-select').append(
-                  '<option id="'+element.id+'">' + element.title + '</option>'
+                  '<option id="priorityId-'+element.id+'">' + element.title + '</option>'
                 );
             });
+        },error: function(xhr){
+        	switch (xhr.status) {
+					case 401:
+						window.location.href = 'login.html';
+                        break;
+                    default:
+                        $("#status").removeClass('d-none');
+                        $("#status").text('Internal server error...Try again later.');
+                        break;
+				}
+        }
+    });
+
+    //specializations
+    $.ajax({
+    	'async': false,
+    	type: 'GET',
+    	url: properties.API_HOST + properties.API_ROOT + 'specializations',
+    	headers: {"Authorization": sessionStorage.getItem('token')},
+    	dataType: 'json',
+    	success: function(data){
+    		$('#specializations').empty();
+    		$('#specializations').append('<option id="specialization-all">All</option>');
+    		$.each(data, function(index, element){
+    			$('#specializations').append('<option id="specialization_id-' + element.id + '">' + element.title + '</option>');
+    		});
+    	},error: function(xhr){
+        	switch (xhr.status) {
+					case 401:
+						window.location.href = 'login.html';
+                        break;
+                    default:
+                        $("#status").removeClass('d-none');
+                        $("#status").text('Internal server error...Try again later.');
+                        break;
+				}
+        }
+    });
+
+    //users
+    $.ajax({
+    	'async': false,
+    	type: 'GET',
+    	url: properties.API_HOST + properties.API_ROOT + 'users',
+    	headers: {"Authorization": sessionStorage.getItem('token')},
+    	dataType: 'json',
+    	success: function(data) {
+    		$('#assign-to').empty();
+    		$.each(data, function(index, element){
+    			$("#assign-to").append('<option id="user-' + element.id + '">' + element.firstName + ' ' + element.lastName + '</option>');
+    		});
+    	},error: function(xhr){
+        	switch (xhr.status) {
+					case 401:
+						window.location.href = 'login.html';
+                        break;
+                    default:
+                        $("#status").removeClass('d-none');
+                        $("#status").text('Internal server error...Try again later.');
+                        break;
+				}
+        }
+    });
+
+  });
+
+  // if user choose specialization -> display all potential asignees with this specialization
+  $('#specializations').change(function(){
+  	var specializationId = $('#specializations').children(':selected').attr('id').split('-')[1];
+  	var urlUserBySpecializationId = 'users/specializations/' + specializationId;
+  	if(specializationId === 'all'){
+  		urlUserBySpecializationId = 'users';
+  	}
+  	$.ajax({
+    	'async': false,
+    	type: 'GET',
+    	url: properties.API_HOST + properties.API_ROOT + urlUserBySpecializationId,
+    	headers: {"Authorization": sessionStorage.getItem('token')},
+    	dataType: 'json',
+    	success: function(data) {
+    		$('#assign-to').empty();
+    		$.each(data, function(index, element){
+    			$("#assign-to").append('<option id="workerId-' + element.id + '">' + element.firstName + ' ' + element.lastName + '</option>');
+    		});
+    	},error: function(xhr){
+        	switch (xhr.status) {
+					case 401:
+						window.location.href = 'login.html';
+                        break;
+                    default:
+                        $("#status").removeClass('d-none');
+                        $("#status").text('Internal server error...Try again later.');
+                        break;
+				}
         }
     });
   });
@@ -64,21 +177,21 @@
   $("#add-project-submit").click(function(event) {
   	var currentUserId = localStorage['userId'] == null ? null : localStorage['userId']; //TODO get from localStorage['userId']
 	var task = {
+			ownerId: sessionStorage.getItem('userId'),
 			name: $('#add-project-name').val(),
-			priorityId: $('#add-project-priority-select').children(":selected").attr("id"),
+			priorityId: $('#add-project-priority-select').children(":selected").attr("id").split('-')[1],
             estimation: $('#add-project-estimation').val(),
-            parentId: null,
-            ownerId: currentUserId,
-            workerId: currentUserId,
-            statusId: 1
+            workerId: $('#assign-to').children(':selected').attr('id').split('-')[1],
 		}
 		console.log(JSON.stringify(task));
         
 		$.ajax({
 		    type: "POST",
-		    url: properties.API_HOST + properties.API_ROOT + "/tasks",//TODO
+		    url: properties.API_HOST + properties.API_ROOT + "tasks",
+		    headers: {"Authorization": sessionStorage.getItem('token')},
 		    contentType: "application/json; charset=utf-8",
 		    dataType: "json",
+		    data: JSON.stringify(task),
 		    success: function(data){
 		    	window.location.href = 'my-projects.html';
 		    },
@@ -89,8 +202,7 @@
                         $("#status").text('Something is wrong on server');
                         break;
 				}
-			},
-		    data: JSON.stringify(task)
+			}
 		});
   });
 </script>

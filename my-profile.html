@@ -5,66 +5,192 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-  <link rel="stylesheet" href="style/style.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+   <link rel="stylesheet" href="style/style.css">
+  <script src="js/properties.js"></script>
 </head>
 <body>
 <div id="headerDiv"></div>
-<div class="container py-5">
-	<div class="row">
-		<div class="col-md-10 offset-md-1">
-		  	<div class="form-group">
-				<div class="col-md-4 offset-md-4">
-		            <form id="userInfo" method="post">
-		                <h2 id="mainHeader" class="text-center"></h2>
-		                <feildset>
-		                    <div class="form-group">
-		                        <label for="email">Email:</label>
-		                        <input type="email" id="email" name="email" class="form-control" placeholder="here will be your email" required="true">
-		                    </div>
-		                    <div class="form-group">
-		                        <label for="firstName">First name:</label>
-		                        <input type="text" id="firstName" name="firstName" class="form-control" placeholder="here will be your first name" required="true">
-		                    </div>
-		                    <div class="form-group">
-		                        <label for="lastName">Last name:</label>
-		                        <input type="text" id="lastName" name="lastName" class="form-control" placeholder="here will be your last name" required="true">
-		                    </div>
-		                    <div class="form-group">
-		                        <label for="password">Password:</label>
-		                        <input type="password" id="password" name="password" class="form-control" placeholder="here will be your password" required="true">
-		                    </div>
-		                    <div class="form-group">
-		                        <label for="confirmPassword">Confirm password:</label>
-		                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="here will be your Confirm password" required="true">
-		                    </div>
-		                    <div class="form-row">
-		                        <div class="col-12">
-		                            <p id="status" style="color:red;" class="d-none"></p>
-		                        </div>
-		                    </div>
-		                    <!--
-		                    <div class="form-row">
-		                        <div class="col-6">
-		                            <input type="button" id="submit" class="btn btn-info" value="Register">
-		                        </div>
-		                    </div>
-		                	-->
-		                </feildset>
-		            </form>
-		        </div>
-			</div>
-	  </div>
-  	</div>
-</div>
+
+
+<div class="container py-3">
+    <div class="row">
+        <div class="mx-auto col-sm-6">
+                    <!-- form user info -->
+                    <div class="card">
+                        <div class="card-header" id="login-title-area">
+                            <h3 class="mb-0 text-center">User Information</h3>
+                        </div>
+                        <div class="card-body">
+                        	<p class="text-center text-danger" id="info-block"></p>
+                            <form  id="userInfo" class="form" role="form" autocomplete="off">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label form-control-label">First name</label>
+                                    <div class="col-lg-9">
+                                        <input class="form-control" type="text" id="firstName" name="firstName" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label form-control-label">Last name</label>
+                                    <div class="col-lg-9">
+                                        <input class="form-control" type="text" id="lastName" name="lastName" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label form-control-label">Email</label>
+                                    <div class="col-lg-9">
+                                        <input class="form-control" type="email" id="email" required>
+                                    </div>
+                                </div>
+                            
+                               
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label form-control-label">Specializations</label>
+                                    <div class="col-lg-9">
+                                        <div id="specialization-block">
+		                    				<div class="form-check" id="specializations"></div>
+  										</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label form-control-label">Password</label>
+                                    <div class="col-lg-9">
+                                        <input class="form-control" type="password"  id="password" name="password">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label form-control-label">Confirm</label>
+                                    <div class="col-lg-9">
+                                        <input class="form-control" type="password" id="confirmPassword" name="confirmPassword">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label form-control-label"></label>
+                                    <div class="col-lg-9">
+                                        <input type="reset" class="btn btn-secondary" value="Cancel">
+                                        <input type="button" class="btn btn-primary" value="Save Changes" id="submit" >
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
 <script type="text/javascript">
-	$( document ).ready(function() {
+	var properties = {
+  		API_HOST: 'http://localhost:8080/',
+  		API_ROOT: 'api/'
+	};
+
+	var userSpecializationIds = [];
+
+	$.ajax({
+			async: false,
+	    	type: 'GET',
+	    	url: properties.API_HOST + properties.API_ROOT + 'users/' + sessionStorage['userId'],
+	    	headers: {"Authorization": sessionStorage.getItem('token')},
+	    	dataType: 'json',
+	    	success: function(data) {
+            alert($('#email').val(data.email));
+	    			$('#email').val(data.email);
+	    			$('#firstName').val(data.firstName);
+	    			$('#lastName').val(data.lastName);
+	    			$.each(data.specializations, function(index, element){
+	    				userSpecializationIds.push(element.id);
+	    			});
+	    	},
+            error: function(xhr){
+            	if(xhr.staus == 401){
+            		window.location.href = 'login.html';
+            	}
+            }
+	   	});
+    	
+
+	$(document).ready(function() {
+		// populate specialization block
+		$.ajax({
+			async: false,
+			type: 'GET',
+			url: properties.API_HOST + properties.API_ROOT + 'specializations',
+	    	headers: {"Authorization": sessionStorage.getItem('token')},
+	    	dataType: 'json',
+	    	success: function(data) {
+	    		$.each(data, function(index, element) {	
+	                $('#specializations').append(
+	                  '<label class="form-check-label">'
+			      			+ '<input type="checkbox" class="form-check-input" value="' + element.title + '"'
+			      			+ 'id="specialization-' + element.id + '"' 
+			      			+  (userSpecializationIds.indexOf(element.id) != -1 ? ' checked' : '') + '>'
+			      				+ element.title
+			    			+ '</label><br>'
+	                	);
+            	});
+	    	},
+            error: function(xhr){
+            	if(xhr.staus == 401){
+            		window.location.href = 'login.html';
+            	}
+            }
+		});
+
+		
 		$("#headerDiv").load("header.html");
-		var userFullName = localStorage['firstName'] + ' ' + localStorage['lastName'];
-		var userFirstName = localStorage['firstName'];
+		var userFullName = sessionStorage['firstName'] + ' ' + sessionStorage['lastName'];
+		var userFirstName = sessionStorage['firstName'];
 		$('#mainHeader').text(userFullName + " profile: ");
-		$('#userDropdownText').text('Hello, ' + userFirstName);
+
+		// submit user info
+		$('#submit').click(function(event){
+			var updated_user = {};
+			var email = $.trim($('#email').val());
+			var firstName = $.trim($('#firstName').val());
+			var lastName = $.trim($('#lastName').val());
+			var specializations = [];
+			$('input[type="checkbox"]:checked').each(function () {
+				var spec_id = $(this).attr('id').split('-')[1];
+				var spec_title = $(this).val();
+				console.log("ID: " + spec_id + " TITLE: " + spec_title);
+         		specializations.push({"id": spec_id, "title": spec_title });
+     		});
+     		var password = $.trim($('#password').val());
+     		var confirmPassword = $.trim($('#confirmPassword').val());
+
+     		if(email === '' || firstName === '' || lastName === '' || password === '' || (password !== confirmPassword)){
+     			$("#info-block").empty().text("You have entered invalid information. Please try again");
+     			return false;
+     		}
+
+     	updated_user['email'] = email;
+			updated_user['firstName'] = firstName;
+			updated_user['lastName'] = lastName;
+			updated_user['specializations'] = specializations;
+			updated_user['password'] = password;
+			updated_user['confirmPassword'] = confirmPassword;
+			console.log(JSON.stringify(updated_user));
+     		$.ajax({
+     			type: "PUT",
+			    url: properties.API_HOST + properties.API_ROOT + "users/" + sessionStorage['userId'],
+			    contentType: "application/json; charset=utf-8",
+			    dataType: "json",
+			    crossDomain: true,
+			    data: JSON.stringify(updated_user),
+			    headers: {"Authorization": sessionStorage.getItem('token')},
+			    beforeSend: function(xhr) { 
+			    	xhr.setRequestHeader('Authorization', sessionStorage.getItem('token')); 
+			    },
+			    success: function(data){
+			    	$("#info-block").empty();
+			    	$("#info-block").text("You have successfully updated your profile.");
+			    }, 
+			    error: function(){
+			    	$("#info-block").empty();
+			    	$("#info-block").text("Internal server error...Try again later.");
+			    }
+     		});
+
+
+		});
 	});
 </script>
 </body>

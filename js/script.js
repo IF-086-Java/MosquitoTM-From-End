@@ -1,6 +1,10 @@
-var properties = {
+/*var properties = {
   API_HOST: 'http://ec2-34-207-88-221.compute-1.amazonaws.com:8080',
   API_ROOT: '/MosquitoTM'
+}*/
+var properties = {
+  API_HOST: 'http://localhost:8080/',
+  API_ROOT: 'api/'
 }
 	function initAccordion(element) {
 		fileName = document.location.pathname.match(/[^\/]+$/)[0];
@@ -9,8 +13,8 @@ var properties = {
 		
 		var currentUserId = '';
 		if(fileName == 'my-projects.html') // if not - dont use ownerId param
-			var currentUserId = localStorage['userId'] == null ? '' : localStorage['userId']; //TODO get from localStorage['userId']
-		console.log(localStorage['userId'] == null ? '' : localStorage['userId'])
+			var currentUserId = sessionStorage['userId'] == null ? '' : sessionStorage['userId']; //TODO get from localStorage['userId']
+		console.log(sessionStorage['userId'] == null ? '' : sessionStorage['userId'])
 		var statusId = '';
 		switch(filter){
 			case 'all' : statusId = '';
@@ -26,10 +30,11 @@ var properties = {
 		$.ajax({ 
 		    'async': false,
 		    type: 'GET', 
-		    url: properties.API_HOST + properties.API_ROOT + "/tasks/owners?status_id=" + statusId + "&owner_id=" + currentUserId,  //TODO
-		    //data: { get_param: 'value' }, 
+		    url: properties.API_HOST + properties.API_ROOT + "owners-tasks/27" ,//+ currentUserId,  //TODO
+		    headers: {"Authorization": sessionStorage.getItem('token')}, 
 		    dataType: 'json',
 		    success: function (data) { 
+		    	console.log("Success: " + data);
 		        $('#accordionDiv').empty();
 		        $.each(data, function(index, element) {
 		            $('#accordionDiv').append(
@@ -169,4 +174,150 @@ var properties = {
 		});
 	}
 
+
+/*
+Add sub-task
+*/
+$.ajax({ 
+        'async': false,
+        type: 'GET', 
+        url: properties.API_HOST + properties.API_ROOT + 'priorities',
+        headers: {"Authorization": sessionStorage.getItem('token')},
+        dataType: 'json',
+        success: function (data) { 
+            $('#add-task-priority-select').empty();
+            $.each(data, function(index, element) {
+                $('#add-task-priority-select').append(
+                  '<option id="taskPriorityId-'+element.id+'">' + element.title + '</option>'
+                );
+            });
+        },error: function(xhr){
+        	switch (xhr.status) {
+					case 401:
+						window.location.href = 'login.html';
+                        break;
+                    default:
+                        $("#status").removeClass('d-none');
+                        $("#status").text('Internal server error...Try again later.');
+                        break;
+				}
+        }
+    });
+
+    //specializations
+    $.ajax({
+    	'async': false,
+    	type: 'GET',
+    	url: properties.API_HOST + properties.API_ROOT + 'specializations',
+    	headers: {"Authorization": sessionStorage.getItem('token')},
+    	dataType: 'json',
+    	success: function(data){
+    		$('#task-specializations').empty();
+    		$('#task-specializations').append('<option id="task_specialization-all">All</option>');
+    		$.each(data, function(index, element){
+    			$('#task-specializations').append('<option id="task_specialization_id-' + element.id + '">' + element.title + '</option>');
+    		});
+    	},error: function(xhr){
+        	switch (xhr.status) {
+					case 401:
+						window.location.href = 'login.html';
+                        break;
+                    default:
+                        $("#status").removeClass('d-none');
+                        $("#status").text('Internal server error...Try again later.');
+                        break;
+				}
+        }
+    });
+
+    //users
+    $.ajax({
+    	'async': false,
+    	type: 'GET',
+    	url: properties.API_HOST + properties.API_ROOT + 'users',
+    	headers: {"Authorization": sessionStorage.getItem('token')},
+    	dataType: 'json',
+    	success: function(data) {
+    		$('#task-assign-to').empty();
+    		$.each(data, function(index, element){
+    			$("#task-assign-to").append('<option id="task_user-' + element.id + '">' + element.firstName + ' ' + element.lastName + '</option>');
+    		});
+    	},error: function(xhr){
+        	switch (xhr.status) {
+					case 401:
+						window.location.href = 'login.html';
+                        break;
+                    default:
+                        $("#status").removeClass('d-none');
+                        $("#status").text('Internal server error...Try again later.');
+                        break;
+				}
+        }
+    });
+
+ 
+
+  // if user choose specialization -> display all potential asignees with this specialization
+  $('#task-specializations').change(function(){
+  	var specializationId = $('#task-specializations').children(':selected').attr('id').split('-')[1];
+  	var urlUserBySpecializationId = 'users/specializations/' + specializationId;
+  	if(specializationId === 'all'){
+  		urlUserBySpecializationId = 'users';
+  	}
+  	$.ajax({
+    	'async': false,
+    	type: 'GET',
+    	url: properties.API_HOST + properties.API_ROOT + urlUserBySpecializationId,
+    	headers: {"Authorization": sessionStorage.getItem('token')},
+    	dataType: 'json',
+    	success: function(data) {
+    		$('#task-assign-to').empty();
+    		$.each(data, function(index, element){
+    			$("#task-assign-to").append('<option id="task_workerId-' + element.id + '">' + element.firstName + ' ' + element.lastName + '</option>');
+    		});
+    	},error: function(xhr){
+        	switch (xhr.status) {
+					case 401:
+						window.location.href = 'login.html';
+                        break;
+                    default:
+                        $("#status").removeClass('d-none');
+                        $("#status").text('Internal server error...Try again later.');
+                        break;
+				}
+        }
+    });
+  });
+
+  $("#add-task-submit").click(function(event) {
+	var task = {
+			ownerId: sessionStorage.getItem('userId'),
+			parentId: $('#add-task-parentId').val(),
+			name: $('#add-task-name').val(),
+			priorityId: $('#add-task-priority-select').children(":selected").attr("id").split('-')[1],
+            estimation: $('#add-task-estimation').val(),
+            workerId: $('#task-assign-to').children(':selected').attr('id').split('-')[1],
+		}
+		console.log(JSON.stringify(task));
+        
+		$.ajax({
+		    type: "POST",
+		    url: properties.API_HOST + properties.API_ROOT + "/tasks",
+		    headers: {"Authorization": sessionStorage.getItem('token')},
+		    contentType: "application/json; charset=utf-8",
+		    dataType: "json",
+		    data: JSON.stringify(task),
+		    success: function(data){
+		    	window.location.href = 'my-projects.html';
+		    },
+		    error:function (xhr, ajaxOptions, thrownError){
+				switch (xhr.status) {
+                    default:
+                        $("#status").removeClass('d-none');
+                        $("#status").text('Something is wrong on server');
+                        break;
+				}
+			}
+		});
+	});
 	

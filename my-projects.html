@@ -3,36 +3,103 @@
 <head>
   <title>Home page | my work</title>
   <meta charset="utf-8">
+  <meta http-equiv="Cache-control" content="no-cache">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-  <link rel="stylesheet" href="style/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-  <script src="js/script.js"></script>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+  <link rel="stylesheet" href="style/style.css">
+  <link rel="stylesheet" href="style/style.css">
 </head>
 <body>
 <div id="container">
-	
+	<!-- TODO: Button for adding subtask --
+		<button data-id="2" class="btn add-task-btn" data-toggle="modal" data-target="#myTaskCreateModal">Add task <i class="fas fa-plus"></i></button>
+	 -->
+
 	<div id="header"></div>
 	<div id="body" class="container py-5">
 		<div class="row">
 			<div class="col-md-10 offset-md-1">
 				<div class="row">
 						<div class="col-md-4 offset-md-4">
-							<div class="btn-group btn-group-lg" role="group" aria-label="Bla bla">
+							<div class="btn-group btn-group-lg" role="group">
 							    <button id="all" onclick="initAccordion(this)"  type="button" class="btn btn-secondary">ALL</button>
 							    <button id="doing" onclick="initAccordion(this)" type="button" class="btn btn-secondary">DOING</button>
 							    <button id="done" onclick="initAccordion(this)"  type="button" class="btn btn-secondary">DONE</button>
 							</div>
 						</div>
 						<div class="col-md-2 offset-md-2" >
-							<button id="add-button" class="btn btn-success" data-toggle="modal" data-target="#myModal">Add project <i class="fa fa-folder"></i> </button>
+							<button id="add-project" class="btn" data-toggle="modal"  data-target="#myModal" >Add project <i class="fas fa-plus"></i> </button>
+
+							<button data-id="2" class="btn add-task-btn" data-toggle="modal" data-target="#myTaskCreateModal">Add task <i class="fas fa-plus"></i></button>
+							
 						</div>
 				</div>
 			</div>
 			<div id="accordionDiv" class="col-md-10 offset-md-1">
 			</div>
+
+			<!-- Add sub-task modal -->
+			<div id="myTaskCreateModal" class="modal fade" role="dialog">
+				  <div class="modal-dialog">
+				    
+				    <div class="modal-content">
+				      <div class="modal-header">
+				        <h4 class="modal-title">Add sub-task</h4>
+				        <button type="button" class="close" data-dismiss="modal">&times;</button>
+				      </div>
+				      <div class="modal-body">
+				        
+				        <form id="addTaskForm" method="post">
+				                <feildset>
+				                	<input type="hidden" name="add-task-parentId" id="add-task-parentId">
+				                    <div class="form-group">
+				                        <label for="add-task-name" class="font-weight-bold">Name:</label>
+				                        <input type="text" id="add-task-name" name="add-task-name" class="form-control" placeholder="Enter task name" required="true">
+				                    </div>                   
+				                    <div class="form-group">
+				                        <label for="add-project-priority-select" class="font-weight-bold">Priority:</label>
+				                        <select class="form-control" id="add-task-priority-select">
+				                        </select>
+				                      </div>
+				                    <div class="form-group">
+				                        <label for="add-task-estimation" class="font-weight-bold">Estimation:</label>
+				                        <input type="number" id="add-task-estimation" name="add-task-priority-select-estimation" class="form-control" placeholder="Input estimation" required="true">
+				                    </div>
+
+				                    <div class="form-group">
+				                    	<label for="task-specializations" class="font-weight-bold">Specializations:</label>
+				                    	<select class="form-control" id="task-specializations"></select>
+				                    </div>
+
+				                    <div class="form-group">
+				                        <label for="task-assign-to" class="font-weight-bold">Assign to:</label>
+				                        <select class="form-control" id="task-assign-to">
+				                        </select>
+				                      </div>
+				                    <div class="form-row">
+				                        <div class="col-12">
+				                            <p id="status" style="color:red;" class="d-none"></p>
+				                        </div>
+				                    </div>
+				                    <div class="form-row">
+				                        <div class="col-md-12">
+				                            <input type="button" id="add-task-submit" class="btn btn-info" style="float: right;" value="Create Task">
+				                        </div>
+				                    </div>
+				                </feildset>
+				            </form>
+
+				      </div>
+				    </div>
+				  </div>
+			</div>
+			<!-- End add sub-task modal -->
+			
+
 			<div id="add-project-modal"></div>
 			<div id="view-details-modal"></div>
 		</div>
@@ -41,18 +108,36 @@
 	<footer class="footer" id="footer"></footer>
 </div>
 
+<script src="js/script.js"></script>
 <script type="text/javascript">
 	$( document ).ready(function() {
 		$("#header").load("header.html");
 		$("#footer").load("footer.html");
-		$("#add-project-modal").load("add-project.html");
+
+		$("#add-project-modal").load('add-project.html');
 		$("#view-details-modal").load("project-details.html");
 		
-		var userFullName = localStorage['firstName'] + ' ' + localStorage['lastName'];
-		var userFirstName = localStorage['firstName'];
-		$('#userDropdownText').text('Hello, ' + userFirstName);
+
+		/*Add to model 'Add sub-task' task-parent-id*/
+		$('#myTaskCreateModal').on('show.bs.modal', function(e) {
+		    var button = $(e.relatedTarget); // Button that triggered the modal 
+		    var modal = $(this);
+		    var parentId = button.data('id');
+		    modal.find('#add-task-parentId').val(parentId);
+		});
+
+		/*Reset modal 'Add sub-task' data */
+		$(".modal").on("hidden.bs.modal", function(){
+   			$('#add-task-parentId').val(''),
+			$('#add-task-name').val(''),
+           	$('#add-task-estimation').val(0),
+           	$("#status").text('');
+		});
+
 
 		initAccordion(document.getElementById("all"));
+
+
 	});
 
 	$(window).on('load', function(){

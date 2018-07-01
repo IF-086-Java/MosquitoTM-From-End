@@ -7,55 +7,80 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="style/style.css">
     <script src="js/properties.js"></script>
 </head>
 <body>
 
-<div class="container">
-    <div class="row" style="margin-top:10%">
-        <div class="col-md-4 offset-md-4">
-            <form id="loginForm" method="post">
-                <h2 class="text-center">Registration on MosquitoTM</h2>
-                <feildset>
-                    <div class="form-group">
-                        <input type="email" id="email" name="email" class="form-control" placeholder="Enter email" required="true">
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="firstName" name="firstName" class="form-control" placeholder="Enter first name" required="true">
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="lastName" name="lastName" class="form-control" placeholder="Enter last name" required="true">
-                    </div>
-                    <div class="form-group">
-                        <input type="password" id="password" name="password" class="form-control" placeholder="Enter password" required="true">
-                    </div>
-                    <div class="form-group">
-                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Confirm password" required="true">
-                    </div>
-                    <div class="form-row">
-                        <div class="col-12">
-                            <p id="status" style="color:red;" class="d-none"></p>
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+                    <span class="anchor" id="formLogin"></span>
+                    <h2 class="text-center mb-3" id="mosquito-text-brand"><img id="mosquito-login-logo" src="img/mosquito_blue.png">MosquitoTM</h2>
+                    <hr class="mb-3">
+
+                    <div class="card card-outline-secondary">
+                        <div class="card-header" id="login-title-area">
+                            <h3 class="mb-0 text-center">Sign Up</h3>
+                        </div>
+
+                        <div class="card-body">
+                            <form id="loginForm" method="post">
+                           
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" id="email" name="email" class="form-control" placeholder="Enter email" required="true">
+                                </div>
+                                <div class="form-group">
+                                    <label for="firstName">First Name</label>
+                                    <input type="text" id="firstName" name="firstName" class="form-control" placeholder="Enter first name" required="true">
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastName">Last Name</label>
+                                    <input type="text" id="lastName" name="lastName" class="form-control" placeholder="Enter last name" required="true">
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">Password</label>
+                                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter password" required="true" autocomplete="new-password">
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmPassword">Confirm</label>
+                                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Confirm password" required="true" autocomplete="new-password">
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-12">
+                                        <p id="status" class="d-none text-danger"></p>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                        <input type="button" id="submit" class="btn btn-success btn-lg float-right" value="Register">
+                                </div>
+               
+                            </form>
                         </div>
                     </div>
-                    <div class="form-row">
-                        <div class="col-6">
-                            <input type="button" id="submit" class="btn btn-info" value="Register">
-                        </div>
-                    </div>
-                </feildset>
-            </form>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</div>    
+                 
+       
 
 <script type="text/javascript">
 	var userId = 0;
     function validate(user) {
-        if(user.password == user.confirmPassword)
-            return true;
-        else
+        if(user.password != user.confirmPassword || $.trim(user.firstName) == '' || $.trim(user.lastName) == ''|| $.trim(user.password) == ''){
             return false;
+        }
+        else{
+            return true;
+        }
     }
+
     $("#submit").click(function() {
 		// this object will be converted to JSON
 		var user = {
@@ -67,35 +92,31 @@
 		}
         if(validate(user) == false) {
             $("#status").removeClass('d-none');
-            $("#status").text('Incorrect data.');
+            $("#status").text('You have entered invalid information. Please try again');
             return;
         }
 
 		$.ajax({
 		    type: "POST",
-		    url: properties.API_HOST + properties.API_ROOT + "/registration",
+		    url: properties.API_HOST + "signup",
 		    contentType: "application/json; charset=utf-8",
 		    dataType: "json",
+            data: JSON.stringify(user),
 		    success: function(data){
-		    	//get "email" field from JSON response
-		    	localStorage['firstName'] = data.firstName;
-                localStorage['lastName'] = data.lastName;
-                localStorage['userId'] = data.userId;
-                window.location.href = 'my-work.html';
+                window.location.href = 'login.html';
 		    },
 		    error:function (xhr, ajaxOptions, thrownError){
 				switch (xhr.status) {
-					case 403:
+					case 400:
 						$("#status").removeClass('d-none');
-                        $("#status").text('User with such email already exists');
+                        $("#status").text(xhr.responseJSON.message);
                         break;
                     default:
                         $("#status").removeClass('d-none');
-                        $("#status").text('Something is wrong');
+                        $("#status").text('Internal server error...Try again later.');
                         break;
 				}
-			},
-		    data: JSON.stringify(user)
+			}
 		});
 	});
 

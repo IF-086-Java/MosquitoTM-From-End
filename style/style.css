@@ -1,3 +1,12 @@
+@import url('https://fonts.googleapis.com/css?family=Black+Ops+One');
+@import url('https://fonts.googleapis.com/css?family=Oswald');
+/*main font*/ 
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+body{
+  font-family: 'Roboto', sans-serif;
+}
+
 .nav-link {
 	color:white;
 }
@@ -65,4 +74,106 @@ body {
 .btn.btn-secondary.status-btn-active {
   background-color: #4a5056;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+
+/*Login and Register pages*/
+.login-btn, .register-btn{
+  width: 98px !important;
+}
+
+#mosquito-login-logo{
+  height: 1.3em;
+  margin-right: 7px;
+}
+
+#mosquito-text-brand{
+  font-family: 'Black Ops One', cursive;
+  color: #122752;
+}
+
+#login-title-area{
+  background-color: #122752;
+}
+
+#login-title-area h3{
+  color: white;
+  font-family: 'Oswald', sans-serif;
+}
+
+/*Header*/
+
+.nav-icons{
+  padding-left: 3em;
+  padding-right: 1em;
+}
+
+.navbar-dark .navbar-nav .nav-link{
+  color: white;
+  font-size: 1.1em;
+}
+
+#main-custom-navbar{
+  background-color: #122752 !important;
+}
+
+.navbar .navbar-nav > li > a {
+    color: #0DFFD2;
+    text-transform: uppercase;
+    font-family: 'Oswald', sans-serif;
+    letter-spacing: 1.5px;
+}
+
+ul.nav.navbar-nav li a:link {
+    line-height: 100%;
+    color: red; 
+}
+
+#my-work-link, #my-projects-link, #all-projects-link{
+  margin-right: 10px;
+}
+
+/* active link*/
+.navbar-dark .navbar-nav .nav-link.active{
+  background-color: #122752;
+  padding-bottom: 3px;
+  color: #EBD89E/*#bbbcbf*/;
+  border-bottom: 3px solid #EBD89E;
+}
+
+#mosquito-logo{
+  height: 2em;
+}
+
+/*change font in navbar-brand*/
+.navbar-brand{
+  font-family: 'Black Ops One', cursive;
+}
+
+
+/*Add project and task buttons*/
+.add-task-btn{
+  background-color: #EBD89E;
+  color: #122752;
+  font-weight: bold;
+  padding: 2px 5px;
+  margin: 3px;
+}
+
+#add-project{
+  background-color: #9C3436;
+  color: #fff;
+  letter-spacing: 1px;
+  font-weight: bold;
+}
+
+/* Modal */
+.modal-header{
+  background-color: #9C3436;
+  color: white;
+  font-weight: bold;
+}
+
+#add-task-submit, #add-project-submit{
+  background-color: #30A98D;
 }
