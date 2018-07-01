@@ -21,7 +21,7 @@
 			<div class="col-md-10 offset-md-1">
 				<div class="row">
 						<div class="col-md-4 offset-md-4">
-							<div class="btn-group btn-group-lg" role="group" aria-label="Bla bla">
+							<div class="btn-group btn-group-lg" role="group" id="status-work-btn">
 							    <button id="all" onclick="initAccordion(this)"  type="button" class="btn btn-secondary">ALL</button>
 							    <button id="doing" onclick="initAccordion(this)" type="button" class="btn btn-secondary">DOING</button>
 							    <button id="done" onclick="initAccordion(this)"  type="button" class="btn btn-secondary">DONE</button>
@@ -39,13 +39,13 @@
 		</div>
 	</div>
 
-	<footer class="footer" id="footer"></footer>
+	<footer class="footer" id="main-footer"></footer>
 </div>
 
 <script type="text/javascript">
 	$( document ).ready(function() {
 		$("#header").load("header.html");
-		$("#footer").load("footer.html");
+		$("footer").load("footer.html");
 		$("#add-project-modal").load("add-project.html?title=Add Task");
 		$("#view-details-modal").load("project-details.html");
 		

@@ -30,7 +30,7 @@ var properties = {
 		$.ajax({ 
 		    'async': false,
 		    type: 'GET', 
-		    url: properties.API_HOST + properties.API_ROOT + "owners-tasks/27" ,//+ currentUserId,  //TODO
+		    url: 'json/getMyWork.json',///properties.API_HOST + properties.API_ROOT + "owners-tasks/44" ,//+ currentUserId,  //TODO
 		    headers: {"Authorization": sessionStorage.getItem('token')}, 
 		    dataType: 'json',
 		    success: function (data) { 
@@ -49,8 +49,9 @@ var properties = {
 	function generateAccordionDivContent(element) {
 		return '<div title="Click to expand" class="accordion" id="' + element.id + '">' + 
 			            		'<span style="width:100%; display: inline-block; text-align: left; align-self: center;">' + 
-			            		'<span style="display:inline-block; padding-top:7px">' + element.name + '</span>' +
-			            		'<button onClick="getTaskDetails('+ element.id +')" type="button" title="" class="btn btn-info" style="float:right">View details</button>' +
+			            		'<span style="display:inline-block;">' + element.name + '</span>' +
+			            		'<button onClick="getTaskDetails('+ element.id +')" type="button" title="" class="btn ditails-btn">View details</button>' +
+			            		'<button data-id="'+ element.id +'" class="btn add-task-btn" data-toggle="modal" data-target="#myTaskCreateModal">Add task <i class="fas fa-plus"></i></button>' +
 			            		'</span>' + 
 			            	'</div>' +	
 			            	'<div class="panel"></div>';
@@ -74,7 +75,7 @@ var properties = {
 			$.ajax({ 
 			    'async': false,
 			    type: 'GET', 
-			    url: properties.API_HOST + properties.API_ROOT + "/tasks/parents?parent_id=" + currentAccordionDivButton.id , 
+			    url: 'json/getMyWorkSubTasks1.json',//properties.API_HOST + properties.API_ROOT + " tasks/parents?parent_id=" + currentAccordionDivButton.id , 
 			    dataType: 'json',
 			    success: function (data) { 
 			    	$.each(data, function(index, element) {

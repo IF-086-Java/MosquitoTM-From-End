@@ -175,13 +175,12 @@
   });
 
   $("#add-project-submit").click(function(event) {
-  	var currentUserId = localStorage['userId'] == null ? null : localStorage['userId']; //TODO get from localStorage['userId']
 	var task = {
-			ownerId: sessionStorage.getItem('userId'),
+			owner: sessionStorage.getItem('userId'),
 			name: $('#add-project-name').val(),
-			priorityId: $('#add-project-priority-select').children(":selected").attr("id").split('-')[1],
+			priority: $('#add-project-priority-select').children(":selected").attr("id").split('-')[1],
             estimation: $('#add-project-estimation').val(),
-            workerId: $('#assign-to').children(':selected').attr('id').split('-')[1],
+            worker: $('#assign-to').children(':selected').attr('id').split('-')[1],
 		}
 		console.log(JSON.stringify(task));
         
@@ -193,9 +192,11 @@
 		    dataType: "json",
 		    data: JSON.stringify(task),
 		    success: function(data){
+                alert('success created project');
 		    	window.location.href = 'my-projects.html';
 		    },
 		    error:function (xhr, ajaxOptions, thrownError){
+                alert('NO created project');
 				switch (xhr.status) {
                     default:
                         $("#status").removeClass('d-none');
