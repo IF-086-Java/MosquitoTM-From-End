@@ -30,7 +30,7 @@ var properties = {
 		$.ajax({ 
 		    'async': false,
 		    type: 'GET', 
-		    url: 'json/getMyWork.json',///properties.API_HOST + properties.API_ROOT + "owners-tasks/44" ,//+ currentUserId,  //TODO
+		    url:/* 'json/getMyWork.json',*/properties.API_HOST + properties.API_ROOT + "tasks/workers-tasks/27" ,//+ currentUserId,  //TODO
 		    headers: {"Authorization": sessionStorage.getItem('token')}, 
 		    dataType: 'json',
 		    success: function (data) { 
@@ -47,11 +47,11 @@ var properties = {
 	}
 
 	function generateAccordionDivContent(element) {
-		return '<div title="Click to expand" class="accordion" id="' + element.id + '">' + 
+		return '<div title="Click to expand" class="accordion" id="' + element.taskId + '">' + 
 			            		'<span style="width:100%; display: inline-block; text-align: left; align-self: center;">' + 
-			            		'<span style="display:inline-block;">' + element.name + '</span>' +
-			            		'<button onClick="getTaskDetails('+ element.id +')" type="button" title="" class="btn ditails-btn">View details</button>' +
-			            		'<button data-id="'+ element.id +'" class="btn add-task-btn" data-toggle="modal" data-target="#myTaskCreateModal">Add task <i class="fas fa-plus"></i></button>' +
+			            		'<span style="display:inline-block;">' + element.taskName + '</span>' +
+			            		'<button onClick="getTaskDetails('+ element.taskId +')" type="button" title="" class="btn ditails-btn">View details</button>' +
+			            		'<button data-id="'+ element.taskId +'" class="btn add-task-btn" data-toggle="modal" data-target="#myTaskCreateModal">Add task <i class="fas fa-plus"></i></button>' +
 			            		'</span>' + 
 			            	'</div>' +	
 			            	'<div class="panel"></div>';
@@ -75,7 +75,8 @@ var properties = {
 			$.ajax({ 
 			    'async': false,
 			    type: 'GET', 
-			    url: 'json/getMyWorkSubTasks1.json',//properties.API_HOST + properties.API_ROOT + " tasks/parents?parent_id=" + currentAccordionDivButton.id , 
+			    headers: {"Authorization": sessionStorage.getItem('token')}, 
+			    url: properties.API_HOST + properties.API_ROOT + 'tasks/'+ currentAccordionDivButton.id + '/sub-tasks', 
 			    dataType: 'json',
 			    success: function (data) { 
 			    	$.each(data, function(index, element) {
@@ -96,17 +97,32 @@ var properties = {
 		$.ajax({ 
 			    'async': false,
 			    type: 'GET', 
-			    url: properties.API_HOST + properties.API_ROOT + "/tasks/" + taskId, 
+			    url: properties.API_HOST + properties.API_ROOT + "tasks/" + taskId, 
 			    dataType: 'json',
-			    success: function (data) { 
+			    headers: {"Authorization": sessionStorage.getItem('token')},
+			    success: function (data) {
+
+			    	// Get worker
+			    	var worker;
+			    	$.ajax({ 
+					    'async': false,
+					    type: 'GET', 
+					    url: properties.API_HOST + properties.API_ROOT + "users/" + data.worker, 
+					    dataType: 'json',
+					    headers: {"Authorization": sessionStorage.getItem('token')},
+					    success: function (data) {
+					    	worker = data.firstName + ' ' + data.lastName;
+					 	}
+					}); 
+
 			    	$('#projectDetailsModal').modal('show');
 					
 					$('#details-name').val(data.name);
-			    	$('#details-assignee').val(data.assignee);
+			    	$('#details-assignee').val(worker);
 			    	$('#details-estimation').val(data.estimation.estimation);
 			   		$('#details-logged').val(data.logged);
-			   		$('#details-priority').val(data.priority.title);
-			   		$('#details-status').val(data.status.title);
+			   		$('#details-priority').val(data.priority);
+			   		$('#details-status').val(data.status);
 			   		$('#details-remaining').val(data.estimation.remaining);		
 			    },
 			    error:function (xhr, ajaxOptions, thrownError){
@@ -303,7 +319,7 @@ $.ajax({
         
 		$.ajax({
 		    type: "POST",
-		    url: properties.API_HOST + properties.API_ROOT + "/tasks",
+		    url: properties.API_HOST + properties.API_ROOT + "tasks",
 		    headers: {"Authorization": sessionStorage.getItem('token')},
 		    contentType: "application/json; charset=utf-8",
 		    dataType: "json",

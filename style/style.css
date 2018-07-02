@@ -61,10 +61,10 @@ body {
 
 
 /*Login and Register pages*/
-.login-btn, .register-btn{
+/*.login-btn, .register-btn{
   width: 98px !important;
 }
-
+*/
 #mosquito-login-logo{
   height: 1.3em;
   margin-right: 7px;
@@ -84,6 +84,24 @@ body {
   font-family: 'Oswald', sans-serif;
 }
 
+#submit, #registration{
+  padding: 6px 25px;
+  margin: 15px;
+  letter-spacing: .8px;
+   font-weight: bold;
+}
+
+#registration{
+  background-color: #9C3436;
+  color: #EBD89E;
+  padding: 6px 21px;
+}
+
+#submit{
+  background-color: #30A98D;
+  border-color: #30A98D;
+  color: white;
+}
 /*Header*/
 
 .nav-icons{
