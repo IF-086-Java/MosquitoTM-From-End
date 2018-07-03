@@ -30,7 +30,69 @@
 					</div>
 				</div>
 				
-				<div id="myWork"></div>
+
+			<div id="accordionDiv" class="col-md-10 offset-md-1">
+			</div>
+
+				<!-- Add sub-task modal -->
+			<div id="myTaskCreateModal" class="modal fade" role="dialog">
+				  <div class="modal-dialog">
+				    
+				    <div class="modal-content">
+				      <div class="modal-header">
+				        <h4 class="modal-title">Add sub-task</h4>
+				        <button type="button" class="close" data-dismiss="modal">&times;</button>
+				      </div>
+				      <div class="modal-body">
+				        
+				        <form id="addTaskForm" method="post">
+				                <feildset>
+				                	<input type="hidden" name="add-task-parentId" id="add-task-parentId">
+				                    <div class="form-group">
+				                        <label for="add-task-name" class="font-weight-bold">Name:</label>
+				                        <input type="text" id="add-task-name" name="add-task-name" class="form-control" placeholder="Enter task name" required="true">
+				                    </div>                   
+				                    <div class="form-group">
+				                        <label for="add-project-priority-select" class="font-weight-bold">Priority:</label>
+				                        <select class="form-control" id="add-task-priority-select">
+				                        </select>
+				                      </div>
+				                    <div class="form-group">
+				                        <label for="add-task-estimation" class="font-weight-bold">Estimation:</label>
+				                        <input type="number" id="add-task-estimation" name="add-task-priority-select-estimation" class="form-control" placeholder="Input estimation" required="true">
+				                    </div>
+
+				                    <div class="form-group">
+				                    	<label for="task-specializations" class="font-weight-bold">Specializations:</label>
+				                    	<select class="form-control" id="task-specializations"></select>
+				                    </div>
+
+				                    <div class="form-group">
+				                        <label for="task-assign-to" class="font-weight-bold">Assign to:</label>
+				                        <select class="form-control" id="task-assign-to">
+				                        </select>
+				                      </div>
+				                    <div class="form-row">
+				                        <div class="col-12">
+				                            <p id="status" style="color:red;" class="d-none"></p>
+				                        </div>
+				                    </div>
+				                    <div class="form-row">
+				                        <div class="col-md-12">
+				                            <input type="button" id="add-task-submit" class="btn btn-info" style="float: right;" value="Create Task">
+				                        </div>
+				                    </div>
+				                </feildset>
+				            </form>
+
+				      </div>
+				    </div>
+				  </div>
+			</div>
+			<!-- End add sub-task modal -->
+
+
+				<div id="add-project-modal"></div>
 				<div id="view-details-modal"></div>
 			</div>
 		</div>
@@ -41,15 +103,34 @@
 
 <script type="text/javascript">
 	$( document ).ready(function() {
-		/*var userFullName = localStorage['firstName'] + ' ' + localStorage['lastName'];
-		var userFirstName = localStorage['firstName'];
-		$('#userDropdownText').text('Hello, ' + userFirstName);
-		*/
 		$("#header").load("header.html");
 		$("footer").load("footer.html");
+		$("#add-project-modal").load("add-project.html");
 		$("#view-details-modal").load("project-details.html");
 		
-		getMyWork(document.getElementById("all"));
+		/*Add to model 'Add sub-task' task-parent-id*/
+		$('#myTaskCreateModal').on('show.bs.modal', function(e) {
+		    var button = $(e.relatedTarget); // Button that triggered the modal 
+		    var modal = $(this);
+		    var parentId = button.data('id');
+		    modal.find('#add-task-parentId').val(parentId);
+		});
+
+		/*Reset modal 'Add sub-task' data */
+		$(".modal").on("hidden.bs.modal", function(){
+   			$('#add-task-parentId').val(''),
+			$('#add-task-name').val(''),
+           	$('#add-task-estimation').val(0),
+           	$("#status").text('');
+		});
+
+		initAccordion(document.getElementById("all"));
+		
+		/*getMyWork(document.getElementById("all"));*/
+	});
+
+	$(window).on('load', function(){
+		reloadAccordion();
 	});
 
 </script>

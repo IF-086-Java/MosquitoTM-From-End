@@ -11,10 +11,19 @@ var properties = {
 		console.log(fileName);
 		var filter = element.id; //all, doing, done
 		
-		var currentUserId = '';
-		if(fileName == 'my-projects.html') // if not - dont use ownerId param
-			var currentUserId = sessionStorage['userId'] == null ? '' : sessionStorage['userId']; //TODO get from localStorage['userId']
-		console.log(sessionStorage['userId'] == null ? '' : sessionStorage['userId'])
+		var currentUserId = sessionStorage.getItem('userId');
+		var query_url;
+		
+		if(fileName == 'my-projects.html'){ // if not - dont use ownerId param
+			query_url = properties.API_HOST + properties.API_ROOT + "projects/owner/27";//+ currentUserId,  //TODO
+		}else if(fileName == 'all-projects.html'){
+			query_url = properties.API_HOST + properties.API_ROOT + 'projects';
+		}else if(fileName == 'my-work.html'){
+			query_url = properties.API_HOST + properties.API_ROOT + 'tasks/workers-tasks/27' // + TODO: currentUserId;
+		}else{
+			query_url = properties.API_HOST + properties.API_ROOT + 'projects';
+		}
+		
 		var statusId = '';
 		switch(filter){
 			case 'all' : statusId = '';
@@ -30,7 +39,7 @@ var properties = {
 		$.ajax({ 
 		    'async': false,
 		    type: 'GET', 
-		    url:/* 'json/getMyWork.json',*/properties.API_HOST + properties.API_ROOT + "tasks/workers-tasks/27" ,//+ currentUserId,  //TODO
+		    url: query_url,
 		    headers: {"Authorization": sessionStorage.getItem('token')}, 
 		    dataType: 'json',
 		    success: function (data) { 
@@ -47,11 +56,11 @@ var properties = {
 	}
 
 	function generateAccordionDivContent(element) {
-		return '<div title="Click to expand" class="accordion" id="' + element.taskId + '">' + 
+		return '<div title="Click to expand" class="accordion" id="' + element.id + '">' + 
 			            		'<span style="width:100%; display: inline-block; text-align: left; align-self: center;">' + 
-			            		'<span style="display:inline-block;">' + element.taskName + '</span>' +
-			            		'<button onClick="getTaskDetails('+ element.taskId +')" type="button" title="" class="btn ditails-btn">View details</button>' +
-			            		'<button data-id="'+ element.taskId +'" class="btn add-task-btn" data-toggle="modal" data-target="#myTaskCreateModal">Add task <i class="fas fa-plus"></i></button>' +
+			            		'<span style="display:inline-block;">' + element.name + '</span>' +
+			            		'<button onClick="getTaskDetails('+ element.id +')" type="button" title="" class="btn ditails-btn">View details</button>' +
+			            		'<button data-id="'+ element.id +'" class="btn add-task-btn" data-toggle="modal" data-target="#myTaskCreateModal">Add task <i class="fas fa-plus"></i></button>' +
 			            		'</span>' + 
 			            	'</div>' +	
 			            	'<div class="panel"></div>';
@@ -155,7 +164,7 @@ var properties = {
 		$('#' + element.id).addClass('status-btn-active');
 	}
 
-	function getMyWork(element) {
+	/*function getMyWork(element) {
 		console.log(element.id);
 		
 		setStatusButtonStyleActive(element);
@@ -195,12 +204,13 @@ var properties = {
 		    }
 		});
 	}
-
+*/
 
 /*
 Details. Add Log work
 */
  $(document).on('click', '#add-logwork-btn', function(){
+ 	closeAnotherDetailsBlock('#add-logwork-btn');
  	$('#log-work-block').removeClass('d-none');
  	$('#add-logwork-btn').addClass('d-none');
  });
@@ -215,6 +225,7 @@ Details. Add Log work
 Details. Add comment
 */
 $(document).on('click', '#add-comments-btn', function(){
+	closeAnotherDetailsBlock('#add-comments-btn');
  	$('#comment-add-block').removeClass('d-none');
  	$('#add-comments-btn').addClass('d-none');
 });
@@ -222,7 +233,7 @@ $(document).on('click', '#add-comments-btn', function(){
 
 
  $(document).on('click', '#cancel-add-comment-btn', function(){
- 	$('#comment-add-block').addClass('d-none');
+  	$('#comment-add-block').addClass('d-none');
  	$('#add-comments-btn').removeClass('d-none');
  });
 
@@ -236,7 +247,7 @@ $(document).on('click', '#add-comment-submit-btn', function(){
  	$.ajax({
  		'async': false,
         type: 'POST', 
-        url: properties.API_HOST + properties.API_ROOT + 'comment/'+ sessionStorage.getItem('currentTaskId') +'/comments',
+        url: properties.API_HOST + properties.API_ROOT + 'tasks/'+ sessionStorage.getItem('currentTaskId') +'/comments',
         headers: {"Authorization": sessionStorage.getItem('token')},
         contentType: "application/json; charset=utf-8",
 		crossDomain: true,
@@ -265,17 +276,18 @@ $(document).on('click', '#add-comment-submit-btn', function(){
 Display list comments
 */
  $(document).on('click', '#comments-btn', function(){
+ 	closeAnotherDetailsBlock('#comments-btn');
  	$('#comment-list-block').removeClass('d-none');
  	$('#comments-btn').addClass('d-none');
  	
  	$.ajax({ 
 		    'async': false,
 		    type: 'GET', 
-		    url: properties.API_HOST + properties.API_ROOT + "comment/" + sessionStorage.getItem('currentTaskId') + "/comments", 
+		    url: properties.API_HOST + properties.API_ROOT + "tasks/" + sessionStorage.getItem('currentTaskId') + "/comments", 
 		    dataType: 'json',
 		    headers: {"Authorization": sessionStorage.getItem('token')},
 		    success: function (data) { 
-		    	$('#comment-display-area').empty();
+		    	clearCommentDisplayList();
 		        $.each(data, function(index, element) {
 		        	var curr_user;
 
@@ -301,16 +313,102 @@ Display list comments
   											'</div>' +
                 						'</div>');
 		        });
+		    },
+		    error: function(xhr){
+		    	$('#comment-display-area').empty();
+		    	switch (xhr.status) {
+					case 401:
+						window.location.href = 'login.html';
+                        break;
+                    case 404:
+                    	$('#comments-info-block').empty();
+                    	$('#comments-info-block').append('There are no comments.');
+                    	break;
+                    default:
+                        $("#status").removeClass('d-none');
+                        $("#status").text('Internal server error...Try again later.');
+                        break;
+				}
 		    }
 		});
  });
 
  $(document).on('click', '#close-comment-list-btn', function(){
-
+ 	clearCommentDisplayList();
  	$('#comment-list-block').addClass('d-none');
  	$('#comments-btn').removeClass('d-none');
  });
 
+ function clearCommentDisplayList(){
+ 	$('#comments-info-block').empty();
+ 	$('#comment-display-area').empty();
+ }
+ function clearAddComment(){
+ 	$('#comment-text').val(null);
+ }
+ function clearAddLogwork(){
+ 	$('#logged-time').val(null);
+ 	$('#remaining-time').val(null);
+ }
+
+/*Clear modal task-details when it close*/
+$(document).on('hidden.bs.modal','#projectDetailsModal', function () {
+  clearCommentDisplayList();
+  clearAddComment();
+  clearAddLogwork();
+
+  $('#comment-add-block').addClass('d-none');
+  $('#comment-list-block').addClass('d-none');
+  $('#log-work-block').addClass('d-none');
+  $('#comment-add-block').addClass('d-none');
+
+  $('#comments-btn').removeClass('d-none');
+  $('#log-works-btn').removeClass('d-none');
+  $('#add-comments-btn').removeClass('d-none');
+  $('#add-logwork-btn').removeClass('d-none');
+});
+
+// Close another details block
+function closeAnotherDetailsBlock(blockName){
+	var blockList = ['#log-work-list', '#log-work-block', '#comment-add-block', '#comment-list-block'];
+	if(blockList[0] != blockName){
+		$('#log-work-block').addClass('d-none');
+		$('#add-logwork-btn').removeClass('d-none');
+
+		$('#comment-add-block').addClass('d-none');
+		$('#add-comments-btn').removeClass('d-none');
+
+		$('#comment-list-block').addClass('d-none');
+		$('#comments-btn').removeClass('d-none');
+	}else if(blockList[1] != blockName){
+		$('#log-work-list').addClass('d-none');
+		$('#log-works-btn').removeClass('d-none');
+
+		$('#comment-add-block').addClass('d-none');
+		$('#add-comments-btn').removeClass('d-none');
+
+		$('#comment-list-block').addClass('d-none');
+		$('#comments-btn').removeClass('d-none');
+	}else if(blockList[2] != blockName){
+		$('#log-work-list').addClass('d-none');
+		$('#log-works-btn').removeClass('d-none');
+
+		$('#log-work-block').addClass('d-none');
+		$('#add-logwork-btn').removeClass('d-none');
+
+		$('#comment-list-block').addClass('d-none');
+		$('#comments-btn').removeClass('d-none');
+	}else if(blockList[3] != blockName){
+		$('#log-work-list').addClass('d-none');
+		$('#log-works-btn').removeClass('d-none');
+
+		$('#log-work-block').addClass('d-none');
+		$('#add-logwork-btn').removeClass('d-none');
+
+		$('#comment-add-block').addClass('d-none');
+		$('#add-comments-btn').removeClass('d-none');
+	} 
+}
 
 
 /*
