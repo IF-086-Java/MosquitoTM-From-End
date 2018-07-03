@@ -64,22 +64,101 @@
                     <input type="number" readonly="true" id="details-logged" name="details-logged" class="form-control" placeholder="Input logged" required="true">
                 </div>
             </div>
+
+           <!--  Log Works -->
+            <div id="log-work-block" class="d-none">
+                <hr class="hr-details">
+                <h4 class="row font-weight-bold justify-content-center">Add log-work</h4>
+                <form method="POST">
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <label for="logged-time" class="font-weight-bold col-md-3">Logged</label>
+                        </div>
+                        <div class="col-md-9">
+                            <input type="number" id="logged-time" name="logged-time" class="form-control" placeholder="Add logged time" required="true">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <label for="remaining-time" class="font-weight-bold">Remaining</label>
+                        </div>
+                        <div class="col-md-9">
+                            <input type="number" id="remaining-time" name="remaining-time" class="form-control" placeholder="Add remaining time" required="true">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-12">
+                            <input type="button" id="cancel-add-log-work-btn" class="btn btn-info float-left" value="Cancel">
+                            <input type="button" id="add-logwork-submit-btn" class="btn btn-info float-right" value="Add Log Work">
+                        </div>
+                    </div>
+                     <hr class="hr-details">
+                </form>
+            </div>
+
+            <!-- Add comments -->
+            <div id="comment-add-block" class="d-none">
+                <hr class="hr-details">
+                <h4 class="row font-weight-bold justify-content-center">Add comment</h4>
+                <form method="POST">
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <label for="comment-text" class="font-weight-bold col-md-3">Text</label>
+                        </div>
+                        <div class="col-md-9">
+                            <textarea class="form-control" rows="3" id="comment-text" name="comment-text" required="true" placeholder="Enter your message"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-12">
+                            <input type="button" id="cancel-add-comment-btn" class="btn btn-info float-left" value="Cancel">
+                            <input type="button" id="add-comment-submit-btn" class="btn btn-info float-right" value="Add Comment">
+                        </div>
+                    </div>
+                     <hr class="hr-details">
+                </form>
+            </div>
+
+            <!-- List comment -->
+            <div id="comment-list-block" class="d-none">
+                <hr class="hr-details">
+                <h4 class="row font-weight-bold justify-content-center">Comments</h4>
+                
+                <div id="comment-display-area"></div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="close-comment-list-btn" class="btn float-left">Close</button>
+                    </div>
+                </div>
+                <hr class="hr-details"> 
+            </div>
+
+            
             <div class="row">
                 <div class="col-12">
                     <p id="status" style="color:red;" class="d-none"></p>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-3">
-                    <input type="button" id="comments-btn" class="btn btn-info" value="Comments">
-                </div>
-                 <div class="col-md-3">
-                    <input type="button" id="log-works-btn" class="btn btn-info" value="Log vorks">
-                </div>
-                 <div class="col-md-3 offset-md-3">
-                    <input type="button" id="edit-btn" class="btn btn-success" style="min-width: 80px" value="Edit">
+
+            <div id="details-main-btn">
+                <div  class="row">
+                    <div class="col-md-6 text-center">
+                        <input type="button" id="comments-btn" class="btn" value="Comments">
+                    </div>
+                    <div class="col-md-6 text-center">
+                        <input type="button" id="log-works-btn" class="btn" value="Log Works">
+                    </div>
                 </div>
 
+                <div class="row">
+                    <div class="col-md-6 text-center">
+                        <input type="button" id="add-comments-btn" class="btn" value="Add Comment">
+                    </div>
+                     <div class="col-md-6 text-center">
+                        <input type="button" id="add-logwork-btn" class="btn" value="Add Log Work">
+                    </div>
+                </div>
             </div>
 
       </div>

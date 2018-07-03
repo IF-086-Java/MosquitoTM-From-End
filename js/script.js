@@ -93,7 +93,12 @@ var properties = {
 		}
 	}
 	
+
+	/*
+	Details
+	*/
 	function getTaskDetails(taskId) {
+		sessionStorage['currentTaskId'] = taskId;
 		$.ajax({ 
 			    'async': false,
 			    type: 'GET', 
@@ -190,6 +195,122 @@ var properties = {
 		    }
 		});
 	}
+
+
+/*
+Details. Add Log work
+*/
+ $(document).on('click', '#add-logwork-btn', function(){
+ 	$('#log-work-block').removeClass('d-none');
+ 	$('#add-logwork-btn').addClass('d-none');
+ });
+
+ $(document).on('click', '#cancel-add-log-work-btn', function(){
+ 	$('#log-work-block').addClass('d-none');
+ 	$('#add-logwork-btn').removeClass('d-none');
+ });
+
+
+/*
+Details. Add comment
+*/
+$(document).on('click', '#add-comments-btn', function(){
+ 	$('#comment-add-block').removeClass('d-none');
+ 	$('#add-comments-btn').addClass('d-none');
+});
+
+
+
+ $(document).on('click', '#cancel-add-comment-btn', function(){
+ 	$('#comment-add-block').addClass('d-none');
+ 	$('#add-comments-btn').removeClass('d-none');
+ });
+
+$(document).on('click', '#add-comment-submit-btn', function(){
+ 	var comment = {
+ 		authorId: sessionStorage.getItem('userId'),
+ 		text: $('#comment-text').val(),
+ 		taskId: sessionStorage.getItem('currentTaskId')
+ 	};
+ 	
+ 	$.ajax({
+ 		'async': false,
+        type: 'POST', 
+        url: properties.API_HOST + properties.API_ROOT + 'comment/'+ sessionStorage.getItem('currentTaskId') +'/comments',
+        headers: {"Authorization": sessionStorage.getItem('token')},
+        contentType: "application/json; charset=utf-8",
+		crossDomain: true,
+        data: JSON.stringify(comment),
+        success: function (data) { 
+            $('#comment-add-block').addClass('d-none');
+            $('#add-comments-btn').removeClass('d-none');
+            // clean
+            $('#comment-text').val(null);
+        },error: function(xhr){
+        	switch (xhr.status) {
+					case 401:
+						window.location.href = 'login.html';
+                        break;
+                    default:
+                        $("#status").removeClass('d-none');
+                        $("#status").text('Internal server error...Try again later.');
+                        break;
+				}
+        }
+ 	});
+ 	
+ });
+
+/*
+Display list comments
+*/
+ $(document).on('click', '#comments-btn', function(){
+ 	$('#comment-list-block').removeClass('d-none');
+ 	$('#comments-btn').addClass('d-none');
+ 	
+ 	$.ajax({ 
+		    'async': false,
+		    type: 'GET', 
+		    url: properties.API_HOST + properties.API_ROOT + "comment/" + sessionStorage.getItem('currentTaskId') + "/comments", 
+		    dataType: 'json',
+		    headers: {"Authorization": sessionStorage.getItem('token')},
+		    success: function (data) { 
+		    	$('#comment-display-area').empty();
+		        $.each(data, function(index, element) {
+		        	var curr_user;
+
+		        	$.ajax({
+		        		'async': false,
+		    			type: 'GET', 
+		    			url: properties.API_HOST + properties.API_ROOT + "users/" + element.authorId, 
+		    			dataType: 'json',
+		    			headers: {"Authorization": sessionStorage.getItem('token')},
+		    			success: function(data){
+		    				curr_user = data;
+		    			}
+		        	});
+
+		            $('#comment-display-area').append('<div class="row">' + 
+                    						'<div class="col-md-3 font-weight-bold">' +
+                    							curr_user.firstName + ' ' + curr_user.lastName +
+                    						'</div>'+
+                    						'<div class="col-md-9">' +
+                        						'<div class="comment-body speech-bubble">' +
+                            					element.text + 
+                        						'</div>'+
+  											'</div>' +
+                						'</div>');
+		        });
+		    }
+		});
+ });
+
+ $(document).on('click', '#close-comment-list-btn', function(){
+
+ 	$('#comment-list-block').addClass('d-none');
+ 	$('#comments-btn').removeClass('d-none');
+ });
+
 
 
 /*
@@ -328,6 +449,9 @@ $.ajax({
 		    	window.location.href = 'my-projects.html';
 		    },
 		    error:function (xhr, ajaxOptions, thrownError){
+		    	// For test. Move to success callback function
+		    	$('#'+task.parentId).next().append(generateAccordionDivContent(task));
+				
 				switch (xhr.status) {
                     default:
                         $("#status").removeClass('d-none');

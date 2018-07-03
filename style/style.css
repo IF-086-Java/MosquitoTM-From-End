@@ -219,3 +219,61 @@ ul.nav.navbar-nav li a:link {
 #mosquito-footer-logo{
   height: 1.3em;
 }
+
+
+/*
+Details modal
+*/
+hr.hr-details{
+  border-top: 3px double #8c8b8b;
+}
+
+#details-main-btn{
+  margin-top: 1em;
+}
+
+#cancel-add-log-work-btn, #add-logwork-submit-btn, #cancel-add-comment-btn, #add-comment-submit-btn,
+#comments-btn, #add-comments-btn, #log-works-btn, #add-logwork-btn, #close-comment-list-btn{
+  font-weight: bold;
+  padding: 4px 9px;
+  margin: 5px;
+  letter-spacing: .8px;
+}
+ #add-logwork-submit-btn, #add-comment-submit-btn, #add-comments-btn, #add-logwork-btn{
+  background-color: #30A98D;
+  color: white;
+}
+#cancel-add-log-work-btn, #cancel-add-comment-btn, #comments-btn, #log-works-btn, #close-comment-list-btn{
+  background-color: #9C3436;
+  color: #EBD89E;
+}
+
+#comments-btn, #add-comments-btn, #log-works-btn, #add-logwork-btn{
+  margin: 5px 1px;
+}
+
+.comment-body{
+  margin: 8px 0;
+  padding: 7px;
+}
+
+.speech-bubble {
+  position: relative;
+  background: #e5e5e5;
+  border-radius: .4em;
+}
+
+.speech-bubble:after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border: 9px solid transparent;
+  border-right-color: #e5e5e5;
+  border-left: 0;
+  margin-top: -9px;
+  margin-left: -9px;
+}
+
