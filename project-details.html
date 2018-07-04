@@ -13,57 +13,64 @@
                     <label for="name">Name:</label>
                 </div>
                 <div class="col-md-9">
-                    <input type="text" readonly="true" id="details-name" name="details-name" class="form-control" placeholder="Enter project name" required="true">
+                    <p id="details-name" name="details-name" class="font-weight-bold"></p>
                 </div>
-            </div>    
+            </div>
+            <hr class="details-line">    
             <div class="row">
                 <div class="col-md-3">
                     <label for="name">Assignee:</label>
                 </div>
                 <div class="col-md-9">
-                    <input type="text" readonly="true" id="details-assignee" name="details-assignee" class="form-control" placeholder="Enter assignee" required="true">
+                    <p id="details-assignee" name="details-assignee" class="font-weight-bold"></p>
                 </div>
             </div>    
+            <hr class="details-line">
             <div class="row">
                 <div class="col-md-3">
                     <label for="details-priority">Priority:</label>
                 </div>
                  <div class="col-md-9">
-                       <input type="text" readonly="true" id="details-priority" name="details-priority" class="form-control" placeholder="Enter priority" required="true">
+                       <p id="details-priority" name="details-priority" class="font-weight-bold"></p>
                 </div>
             </div>
+            <hr class="details-line">
             <div class="row">
                 <div class="col-md-3">
                     <label for="prioritySelect">Status:</label>
                 </div>
                  <div class="col-md-9">
-                    <input type="text" readonly="true" id="details-status" name="details-status" class="form-control" placeholder="Enter status" required="true">
+                    <p id="details-status" name="details-status" class="font-weight-bold"></p>
                 </div>
             </div>
+            <hr class="details-line">
             <div class="row">
                 <div class="col-md-3">
                     <label for="details-estimation">Estimation:</label>
                 </div>
                 <div class="col-md-9">
-                    <input type="number" readonly="true" id="details-estimation" name="details-estimation" class="form-control" placeholder="Input estimation" required="true">
+                    <p id="details-estimation" name="details-estimation" class="font-weight-bold"></p>
                 </div>
             </div>
+            <hr class="details-line">
             <div class="row">
                 <div class="col-md-3">
                     <label for="details-remaining">Remaining:</label>
                 </div>
                 <div class="col-md-9">
-                    <input type="number" readonly="true" id="details-remaining" name="details-remaining" class="form-control" placeholder="Input remaining" required="true">
+                    <p id="details-remaining" name="details-remaining" class="font-weight-bold"></p>
                 </div>
             </div>
+            <hr class="details-line">
             <div class="row">
                 <div class="col-md-3">
                     <label for="details-logged">Logged:</label>
                 </div>
                 <div class="col-md-9">
-                    <input type="number" readonly="true" id="details-logged" name="details-logged" class="form-control" placeholder="Input logged" required="true">
+                    <p id="details-logged" name="details-logged" class="font-weight-bold"></p>
                 </div>
             </div>
+            <hr class="details-line">
 
            <!--  Log Works -->
             <div id="log-work-block" class="d-none">
@@ -95,6 +102,15 @@
                      <hr class="hr-details">
                 </form>
             </div>
+
+            <!-- Log-work display list -->
+            <div id="log-work-list" class="d-none">
+                <hr class="hr-details">
+                <h4 class="row font-weight-bold justify-content-center">Log-works</h4>
+                 <hr class="hr-details">
+            </div>
+
+
 
             <!-- Add comments -->
             <div id="comment-add-block" class="d-none">

@@ -107,6 +107,7 @@ var properties = {
 	Details
 	*/
 	function getTaskDetails(taskId) {
+		clearTaskDetails();
 		sessionStorage['currentTaskId'] = taskId;
 		$.ajax({ 
 			    'async': false,
@@ -131,29 +132,28 @@ var properties = {
 
 			    	$('#projectDetailsModal').modal('show');
 					
-					$('#details-name').val(data.name);
-			    	$('#details-assignee').val(worker);
-			    	$('#details-estimation').val(data.estimation.estimation);
-			   		$('#details-logged').val(data.logged);
-			   		$('#details-priority').val(data.priority);
-			   		$('#details-status').val(data.status);
-			   		$('#details-remaining').val(data.estimation.remaining);		
+					$('#details-name').append(data.name);
+			    	$('#details-assignee').append(worker);
+			    	$('#details-estimation').append(data.estimation.estimation);
+			   		$('#details-logged').append(data.logged);
+			   		$('#details-priority').append(data.priority);
+			   		$('#details-status').append(data.status);
+			   		$('#details-remaining').append(data.estimation.remaining);		
 			    },
 			    error:function (xhr, ajaxOptions, thrownError){
-			    	//TODO
 			    	alert('Server connection error...');
 			    }
 			});
 	}
 
 	function clearTaskDetails() {
-		$('#details-name').val(null);
-    	$('#details-assignee').val(null);
-    	$('#details-estimation').val(null);
-   		$('#details-logged').val(null);
-   		$('#details-priority').val(null);
-   		$('#details-status').val(null);
-   		$('#details-remaining').val(null);
+		$('#details-name').empty();
+    	$('#details-assignee').empty();
+    	$('#details-estimation').empty();
+   		$('#details-logged').empty();
+   		$('#details-priority').empty();
+   		$('#details-status').empty();
+   		$('#details-remaining').empty();
 	}
 
 	function setStatusButtonStyleActive(element) {
@@ -233,11 +233,13 @@ $(document).on('click', '#add-comments-btn', function(){
 
 
  $(document).on('click', '#cancel-add-comment-btn', function(){
+ 	$('#comment-text').val(null);
   	$('#comment-add-block').addClass('d-none');
  	$('#add-comments-btn').removeClass('d-none');
  });
 
-$(document).on('click', '#add-comment-submit-btn', function(){
+$(document).on('click', '#add-comment-submit-btn', function(event){
+	event.stopImmediatePropagation();
  	var comment = {
  		authorId: sessionStorage.getItem('userId'),
  		text: $('#comment-text').val(),

@@ -227,6 +227,13 @@ Details modal
 hr.hr-details{
   border-top: 3px double #8c8b8b;
 }
+hr.details-line{
+  margin: 5px;
+}
+
+#projectDetailsModal p, #projectDetailsModal label{
+  margin: 5px;
+}
 
 #details-main-btn{
   margin-top: 1em;
