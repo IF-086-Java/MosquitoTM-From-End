@@ -14,7 +14,7 @@ var properties = {
 		var currentUserId = sessionStorage.getItem('userId');
 		var query_url;
 		
-		if(fileName == 'my-projects.html'){ // if not - dont use ownerId param
+		if(fileName == 'my-projects.html'){ 
 			query_url = properties.API_HOST + properties.API_ROOT + "projects/owner/27";//+ currentUserId,  //TODO
 		}else if(fileName == 'all-projects.html'){
 			query_url = properties.API_HOST + properties.API_ROOT + 'projects';
@@ -24,15 +24,7 @@ var properties = {
 			query_url = properties.API_HOST + properties.API_ROOT + 'projects';
 		}
 		
-		var statusId = '';
-		switch(filter){
-			case 'all' : statusId = '';
-				break;
-			case 'doing' : statusId = 2;
-				break;
-			case 'done' : statusId = 3;
-				break;
-		}
+		
 		setStatusButtonStyleActive(element);
 		console.log(filter);		
 		
@@ -42,8 +34,10 @@ var properties = {
 		    url: query_url,
 		    headers: {"Authorization": sessionStorage.getItem('token')}, 
 		    dataType: 'json',
-		    success: function (data) { 
-		    	console.log("Success: " + data);
+		    success: function (data) {
+		    	var tasks_status = $('#status-work-btn .status-btn-active').attr('id');
+		    	data = filterTaskByStatus(tasks_status, data);
+		        
 		        $('#accordionDiv').empty();
 		        $.each(data, function(index, element) {
 		            $('#accordionDiv').append(
@@ -56,11 +50,11 @@ var properties = {
 	}
 
 	function generateAccordionDivContent(element) {
-		return '<div title="Click to expand" class="accordion" id="' + element.id + '">' + 
+		return '<div title="Click to expand" class="accordion" id="' + (element.id == undefined ? element.taskId : element.id) + '">' + 
 			            		'<span style="width:100%; display: inline-block; text-align: left; align-self: center;">' + 
-			            		'<span style="display:inline-block;">' + element.name + '</span>' +
-			            		'<button onClick="getTaskDetails('+ element.id +')" type="button" title="" class="btn ditails-btn">View details</button>' +
-			            		'<button data-id="'+ element.id +'" class="btn add-task-btn" data-toggle="modal" data-target="#myTaskCreateModal">Add task <i class="fas fa-plus"></i></button>' +
+			            		'<span style="display:inline-block;">' + (element.name == undefined ? element.taskName : element.name) + '</span>' +
+			            		'<button onClick="getTaskDetails('+ (element.id == undefined ? element.taskId : element.id) +')" type="button" title="" class="btn ditails-btn">View details</button>' +
+			            		'<button data-id="'+ (element.id == undefined ? element.taskId : element.id) +'" class="btn add-task-btn" data-toggle="modal" data-target="#myTaskCreateModal">Add task <i class="fas fa-plus"></i></button>' +
 			            		'</span>' + 
 			            	'</div>' +	
 			            	'<div class="panel"></div>';
@@ -87,8 +81,12 @@ var properties = {
 			    headers: {"Authorization": sessionStorage.getItem('token')}, 
 			    url: properties.API_HOST + properties.API_ROOT + 'tasks/'+ currentAccordionDivButton.id + '/sub-tasks', 
 			    dataType: 'json',
-			    success: function (data) { 
+			    success: function (data) {
+			    	var tasks_status = $('#status-work-btn .status-btn-active').attr('id');
+			    	data = filterTaskByStatus(tasks_status, data); 
+
 			    	$.each(data, function(index, element) {
+			    		console.log("Name: " + element.id + " status: " + element.statusDto.title);
 			            panel.innerHTML = panel.innerHTML +
 			            	generateAccordionDivContent(element);
 			        });
@@ -100,6 +98,49 @@ var properties = {
 		else {
 			panel.innerHTML = '';
 		}
+	}
+
+	function filterTaskByStatus(statusTitle, data){
+		if(statusTitle === 'all') return data;
+		var filteredTasks = [];
+		// for TaskMongo
+		if(data.length > 0 && data[0].statusDto == undefined){
+			for(var i = 0; i < data.length; i++){
+				$.ajax({ 
+				    'async': false,
+				    type: 'GET', 
+				    headers: {"Authorization": sessionStorage.getItem('token')}, 
+				    url: properties.API_HOST + properties.API_ROOT + 'tasks/'+ (data[i].id == undefined ? data[i].taskId : data[i].id), 
+				    dataType: 'json',
+				    success: function (task) {
+				    	if(statusTitle === 'done' && task.status == 'DONE'){
+				    		filteredTasks.push(data[i]);
+				    	}else if(statusTitle != 'done' && task.status != 'DONE'){
+				    		filteredTasks.push(data[i]);
+				    	}
+				    }
+				});
+			}
+			return filteredTasks;
+		}
+
+
+		if(statusTitle === 'done'){
+			for(var i = 0; i < data.length; i++){
+				if(data[i].statusDto.title === 'DONE'){
+					filteredTasks.push(data[i]);
+				}
+			}
+			return filteredTasks;
+		}else if(statusTitle != 'done'){
+			for(var i = 0; i < data.length; i++){
+				if(data[i].statusDto.title != 'DONE'){
+					filteredTasks.push(data[i]);
+				}
+			}
+			return filteredTasks;
+		}
+		return data;
 	}
 	
 
@@ -116,7 +157,7 @@ var properties = {
 			    dataType: 'json',
 			    headers: {"Authorization": sessionStorage.getItem('token')},
 			    success: function (data) {
-
+			    	sessionStorage['currentEstimationId'] = data.estimation;
 			    	// Get worker
 			    	var worker;
 			    	$.ajax({ 
@@ -334,6 +375,55 @@ Display list comments
 		    }
 		});
  });
+
+/* Add log work*/
+$(document).on('click', '#add-logwork-submit-btn', function(event){
+	event.stopImmediatePropagation();
+ 	var logwork = {
+		  "description": $("#logwork-description").val(),
+		  "estimationId": sessionStorage.getItem('currentEstimationId'),
+		  "id": null,
+		  "lastUpdate": null,
+		  "logged": $("#logged-time").val(),
+		  "userId": sessionStorage.getItem('userId')
+ 	};
+ 	alert(
+ 		logwork.description + "\n" +
+		logwork.estimationId  + "\n" +
+		logwork.logged  + "\n" +
+		logwork.userId
+ 		);
+ 	$.ajax({
+ 		'async': false,
+        type: 'POST', 
+        url: properties.API_HOST + properties.API_ROOT + 'log-work/' + sessionStorage.getItem('currentTaskId') + '/log-works/' + $('#remaining-time').val(),
+        headers: {"Authorization": sessionStorage.getItem('token')},
+        contentType: "application/json; charset=utf-8",
+		crossDomain: true,
+        data: JSON.stringify(logwork),
+        success: function (data) {
+        	alert('Succuss add logwork'); 
+            $('#log-work-block').addClass('d-none');
+            $('#add-logwork-btn').removeClass('d-none');
+            // clean
+            $('#logwork-description').val(null);
+            $('#logged-time').val(null);
+            $('#remaining-time').val(null);
+        },error: function(xhr){
+        	switch (xhr.status) {
+					case 401:
+						window.location.href = 'login.html';
+                        break;
+                    default:
+                        $("#status").removeClass('d-none');
+                        $("#status").text('Internal server error...Try again later.');
+                        break;
+				}
+        }
+ 	});
+ 	
+ });
+
 
  $(document).on('click', '#close-comment-list-btn', function(){
  	clearCommentDisplayList();

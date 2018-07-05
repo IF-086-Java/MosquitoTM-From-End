@@ -18,13 +18,13 @@
 <div class="container py-3">
     <div class="row">
         <div class="mx-auto col-sm-6">
-                    <!-- form user info -->
+                    
                     <div class="card">
                         <div class="card-header" id="login-title-area">
                             <h3 class="mb-0 text-center">User Information</h3>
                         </div>
                         <div class="card-body">
-                        	<p class="text-center text-danger" id="info-block"></p>
+                        	<p class="text-center text-danger d-none" id="info-block"></p>
                             <form  id="userInfo" class="form" role="form" autocomplete="off">
                                 <div class="form-group row">
                                     <label class="col-lg-3 col-form-label form-control-label">First name</label>
@@ -104,9 +104,16 @@
 	    			});
 	    	},
             error: function(xhr){
-            	if(xhr.staus == 401){
-            		window.location.href = 'login.html';
-            	}
+              switch (xhr.status) {
+                case 401:
+                  window.location.href = 'login.html';
+                  break;
+                default:
+                        $("#info-block").removeClass('d-none');
+                        $("#info-block").text('Internal server error...Try again later.');
+                        break;
+              }
+            	
             }
 	   	});
     	
@@ -134,9 +141,15 @@
             	});
 	    	},
             error: function(xhr){
-            	if(xhr.staus == 401){
-            		window.location.href = 'login.html';
-            	}
+            	switch (xhr.status) {
+                case 401:
+                  window.location.href = 'login.html';
+                  break;
+                default:
+                        $("#info-block").removeClass('d-none');
+                        $("#info-block").text('Internal server error...Try again later.');
+                        break;
+              }
             }
 		});
 
@@ -148,6 +161,7 @@
 
 		// submit user info
 		$('#submit').click(function(event){
+      $('#info-block').addClass('d-none');
 			var updated_user = {};
 			var email = $.trim($('#email').val());
 			var firstName = $.trim($('#firstName').val());
@@ -187,11 +201,19 @@
 			    },
 			    success: function(data){
 			    	$("#info-block").empty();
+            $("#info-block").removeClass('d-none');
 			    	$("#info-block").text("You have successfully updated your profile.");
 			    }, 
-			    error: function(){
-			    	$("#info-block").empty();
-			    	$("#info-block").text("Internal server error...Try again later.");
+			    error: function(xhr){
+            switch (xhr.status) {
+                case 401:
+                  window.location.href = 'login.html';
+                  break;
+                default:
+                        $("#info-block").removeClass('d-none');
+                        $("#info-block").text('Internal server error...Try again later.');
+                        break;
+              }
 			    }
      		});
 
