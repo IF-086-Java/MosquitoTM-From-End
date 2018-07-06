@@ -154,6 +154,7 @@ ul.nav.navbar-nav li a:link {
 
 /*Add project and task buttons*/
 .add-task-btn, .ditails-btn{
+  width: 125px !important;
   font-weight: bold;
   padding: 4px 9px;
   margin: 5px;
@@ -170,6 +171,7 @@ ul.nav.navbar-nav li a:link {
 }
 
 #add-project{
+  margin-top: 7px;
   background-color: #9C3436;
   color: #fff;
   letter-spacing: 1px;

@@ -7,7 +7,7 @@ var properties = {
   API_ROOT: 'api/'
 }
 	function initAccordion(element) {
-		fileName = document.location.pathname.match(/[^\/]+$/)[0];
+		var fileName = document.location.pathname.match(/[^\/]+$/)[0];
 		console.log(fileName);
 		var filter = element.id; //all, doing, done
 		
@@ -37,25 +37,53 @@ var properties = {
 		    success: function (data) {
 		    	var tasks_status = $('#status-work-btn .status-btn-active').attr('id');
 		    	data = filterTaskByStatus(tasks_status, data);
-		        
-		        $('#accordionDiv').empty();
+		         $('#accordionDiv').empty();
+		        if(!Array.isArray(data) || data.length == 0){
+		    		infoMsgNoTasks(fileName);
+		    		return;
+		    	}
+
 		        $.each(data, function(index, element) {
 		            $('#accordionDiv').append(
 		            	generateAccordionDivContent(element)
 		            );
 		        });
+		    },
+		    error: function(xhr){
+		    	switch (xhr.status) {
+					case 401:
+						window.location.href = 'login.html';
+                        break;
+                    default:
+                    	infoMsgNoTasks(fileName);
+                        break;
+			}
 		    }
 		});
 		reloadAccordion();
 	}
 
+	function infoMsgNoTasks(fileName){
+		var info_message;
+        if(fileName == 'my-work.html'){
+            info_message = 'There are no tasks.';
+        }else{
+        	info_message = 'There are no projects.';
+        }
+        $("#accordionDiv").append('<div class="alert alert-danger" role="alert"><strong>'+
+            info_message +
+        '</strong></div>');
+	}
+
 	function generateAccordionDivContent(element) {
-		return '<div title="Click to expand" class="accordion" id="' + (element.id == undefined ? element.taskId : element.id) + '">' + 
-			            		'<span style="width:100%; display: inline-block; text-align: left; align-self: center;">' + 
+		return '<div title="Click to expand" class="accordion row" id="' + (element.id == undefined ? element.taskId : element.id) + '">' + 
+			            		'<div class="col-md-7">' +
 			            		'<span style="display:inline-block;">' + (element.name == undefined ? element.taskName : element.name) + '</span>' +
+			            		'</div>' +
+			            		'<div class="col-md-5">' + 
 			            		'<button onClick="getTaskDetails('+ (element.id == undefined ? element.taskId : element.id) +')" type="button" title="" class="btn ditails-btn">View details</button>' +
 			            		'<button data-id="'+ (element.id == undefined ? element.taskId : element.id) +'" class="btn add-task-btn" data-toggle="modal" data-target="#myTaskCreateModal">Add task <i class="fas fa-plus"></i></button>' +
-			            		'</span>' + 
+			            		'</div>' +
 			            	'</div>' +	
 			            	'<div class="panel"></div>';
 	}
@@ -113,9 +141,11 @@ var properties = {
 				    url: properties.API_HOST + properties.API_ROOT + 'tasks/'+ (data[i].id == undefined ? data[i].taskId : data[i].id), 
 				    dataType: 'json',
 				    success: function (task) {
-				    	if(statusTitle === 'done' && task.status == 'DONE'){
+				    	if(statusTitle === 'done' && task.status === 'DONE'){
 				    		filteredTasks.push(data[i]);
-				    	}else if(statusTitle != 'done' && task.status != 'DONE'){
+				    	}else if(statusTitle === 'todo' && task.status === 'TODO'){
+				    		filteredTasks.push(data[i]);
+				    	}else if(statusTitle === 'doing' && task.status === 'DOING'){
 				    		filteredTasks.push(data[i]);
 				    	}
 				    }
@@ -132,9 +162,16 @@ var properties = {
 				}
 			}
 			return filteredTasks;
-		}else if(statusTitle != 'done'){
+		}else if(statusTitle === 'todo'){
 			for(var i = 0; i < data.length; i++){
-				if(data[i].statusDto.title != 'DONE'){
+				if(data[i].statusDto.title === 'TODO'){
+					filteredTasks.push(data[i]);
+				}
+			}
+			return filteredTasks;
+		}else if(statusTitle === 'doing'){
+			for(var i = 0; i < data.length; i++){
+				if(data[i].statusDto.title === 'DOING'){
 					filteredTasks.push(data[i]);
 				}
 			}
@@ -157,7 +194,8 @@ var properties = {
 			    dataType: 'json',
 			    headers: {"Authorization": sessionStorage.getItem('token')},
 			    success: function (data) {
-			    	sessionStorage['currentEstimationId'] = data.estimation;
+			    	/*sessionStorage['currentEstimationId'] = data.estimationDto.id;
+			    	console.log("sessionStorage['currentEstimationId']: " + sessionStorage['currentEstimationId']);*/
 			    	// Get worker
 			    	var worker;
 			    	$.ajax({ 
@@ -205,47 +243,7 @@ var properties = {
 		$('#' + element.id).addClass('status-btn-active');
 	}
 
-	/*function getMyWork(element) {
-		console.log(element.id);
-		
-		setStatusButtonStyleActive(element);
-		$('#myWork').html(ajaxGetMyWork(element.id));
-	}
 
-	function ajaxGetMyWork(status) {
-		var statusId = '';
-		switch(status){
-			case 'all' : statusId = '';
-				break;
-			case 'doing' : statusId = 2;
-				break;
-			case 'done' : statusId = 3;
-				break;
-		}
-		var currentUserId = localStorage['userId'] == null ? '' : localStorage['userId']; //TODO get from localStorage['userId']
-		$('#myWork').empty();
-		$.ajax({ 
-		    'async': false,
-		    type: 'GET', 
-		    url: properties.API_HOST + properties.API_ROOT + "/tasks/workers?status_id=" + statusId + "&worker_id=" + currentUserId,  //TODO
-		    //data: { get_param: 'value' }, 
-		    dataType: 'json',
-		    success: function (data) { 
-		        $.each(data, function(index, element) {
-		            $('#myWork').append(
-
-							'<div class="accordion" style="cursor: default;" id="' + element.id + '">' + 
-			            		'<span style="width:100%; display: inline-block; text-align: left; align-self: center;">' + 
-			            		'<span style="display:inline-block; padding-top:7px">' + element.name + '</span>' +
-			            		'<button onClick="getTaskDetails('+ element.id +')" type="button" title="" class="btn btn-info" style="float:right">View details</button>' +
-			            		'</span>' + 
-			            	'</div>'
-		            );
-		        });
-		    }
-		});
-	}
-*/
 
 /*
 Details. Add Log work
@@ -309,7 +307,7 @@ $(document).on('click', '#add-comment-submit-btn', function(event){
                         $("#status").removeClass('d-none');
                         $("#status").text('Internal server error...Try again later.');
                         break;
-				}
+			}
         }
  	});
  	
@@ -387,12 +385,7 @@ $(document).on('click', '#add-logwork-submit-btn', function(event){
 		  "logged": $("#logged-time").val(),
 		  "userId": sessionStorage.getItem('userId')
  	};
- 	alert(
- 		logwork.description + "\n" +
-		logwork.estimationId  + "\n" +
-		logwork.logged  + "\n" +
-		logwork.userId
- 		);
+ 	console.log("Logwork: " + JSON.stringify(logwork));
  	$.ajax({
  		'async': false,
         type: 'POST', 

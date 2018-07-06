@@ -21,14 +21,19 @@
 		<div class="row">
 			<div class="col-md-10 offset-md-1">
 				<div class="row">
-					<div class="col-md-4 offset-md-4">
-						<div class="btn-group btn-group-lg" id="status-work-btn" role="group">
-						    <button id="all" onclick="initAccordion(this)"  type="button" class="btn">ALL</button>
-						    <button id="doing" onclick="initAccordion(this)" type="button" class="btn">DOING</button>
-						    <button id="done" onclick="initAccordion(this)"  type="button" class="btn">DONE</button>
+						<div class="col-md-5 offset-md-3">
+							<div class="btn-group btn-group-lg" id="status-work-btn" role="group">
+							    <button id="all" onclick="initAccordion(this)"  type="button" class="btn btn-secondary">ALL</button>
+							    <button id="todo" onclick="initAccordion(this)"  type="button" class="btn btn-secondary">TODO</button>
+							    <button id="doing" onclick="initAccordion(this)" type="button" class="btn btn-secondary">DOING</button>
+							    <button id="done" onclick="initAccordion(this)"  type="button" class="btn btn-secondary">DONE</button>
+							</div>
 						</div>
-					</div>
+						<div class="col-md-2 offset-md-1" >
+							<button id="add-project" class="btn" data-toggle="modal"  data-target="#myModal" >Add project <i class="fas fa-plus"></i> </button>
+						</div>
 				</div>
+			</div>
 				
 
 			<div id="accordionDiv" class="col-md-10 offset-md-1">
