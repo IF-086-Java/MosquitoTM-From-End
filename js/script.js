@@ -9,7 +9,7 @@ var properties = {
 	function initAccordion(element) {
 		var fileName = document.location.pathname.match(/[^\/]+$/)[0];
 		console.log(fileName);
-		var filter = element.id; //all, doing, done
+		var filter = element.id; //all, todo, doing, done
 		
 		var currentUserId = sessionStorage.getItem('userId');
 		var query_url;
@@ -25,8 +25,7 @@ var properties = {
 		}
 		
 		
-		setStatusButtonStyleActive(element);
-		console.log(filter);		
+		setStatusButtonStyleActive(element);	
 		
 		$.ajax({ 
 		    'async': false,
@@ -44,6 +43,7 @@ var properties = {
 		    	}
 
 		        $.each(data, function(index, element) {
+		        	console.log(JSON.stringify(element));
 		            $('#accordionDiv').append(
 		            	generateAccordionDivContent(element)
 		            );
@@ -70,22 +70,49 @@ var properties = {
         }else{
         	info_message = 'There are no projects.';
         }
+        $("#accordionDiv").empty();
         $("#accordionDiv").append('<div class="alert alert-danger" role="alert"><strong>'+
             info_message +
         '</strong></div>');
 	}
 
 	function generateAccordionDivContent(element) {
+		generateProgressBar(element);
 		return '<div title="Click to expand" class="accordion row" id="' + (element.id == undefined ? element.taskId : element.id) + '">' + 
-			            		'<div class="col-md-7">' +
-			            		'<span style="display:inline-block;">' + (element.name == undefined ? element.taskName : element.name) + '</span>' +
+			            		'<div class="col-xs-12 col-md-7">' +
+			            			'<span style="display:inline-block;">' + (element.name == undefined ? element.taskName : element.name) + '</span>' +
 			            		'</div>' +
-			            		'<div class="col-md-5">' + 
+			            		 generateProgressBar(element) + 
+			            		'<div class="col-xs-12 col-md-4">' + 
 			            		'<button onClick="getTaskDetails('+ (element.id == undefined ? element.taskId : element.id) +')" type="button" title="" class="btn ditails-btn">View details</button>' +
 			            		'<button data-id="'+ (element.id == undefined ? element.taskId : element.id) +'" class="btn add-task-btn" data-toggle="modal" data-target="#myTaskCreateModal">Add task <i class="fas fa-plus"></i></button>' +
 			            		'</div>' +
 			            	'</div>' +	
 			            	'<div class="panel"></div>';
+	}
+
+	function generateProgressBar(task){
+		/*if(task.estimation == undefined){
+			return '<div class="col-xs-12 col-md-1"></div>';
+		}*/
+		var estimationTime = 120;//task.timeEstimation;
+		var remaining = 25;//task.remaining;
+		var donePersent = 100 - Math.round(remaining/estimationTime*100);
+		var roundTo10done = ((donePersent % 10 > 4) ? (donePersent - donePersent % 10 + 10) : (donePersent - donePersent % 10));
+
+		return '<div class="col-xs-12 col-md-1"><div class="progress" data-percentage="' + roundTo10done + '">' +
+									'<span class="progress-left">' +
+									'<span class="progress-bar"></span></span>' +
+									'<span class="progress-right">' +
+									'<span class="progress-bar"></span>' + 
+									'</span>' +
+									'<div class="progress-value">' +
+									'<div>' +
+									donePersent + '%' +
+									'<br><span class="progressbar-title">Done</span>' +
+									
+									'</div></div></div></div>';
+		
 	}
 
 	function reloadAccordion(){
@@ -610,7 +637,7 @@ $.ajax({
     });
   });
 
-  $("#add-task-submit").click(function(event) {
+  $( "#add-task-submit").on('click', function(event) {
 	var task = {
 			ownerId: sessionStorage.getItem('userId'),
 			parentId: $('#add-task-parentId').val(),
