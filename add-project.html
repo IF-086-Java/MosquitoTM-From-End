@@ -175,12 +175,13 @@
   });
 
   $("#add-project-submit").click(function(event) {
+    event.stopImmediatePropagation();
 	var task = {
-			owner: sessionStorage.getItem('userId'),
+			ownerId: sessionStorage.getItem('userId'),
 			name: $('#add-project-name').val(),
-			priority: $('#add-project-priority-select').children(":selected").attr("id").split('-')[1],
-            estimation: $('#add-project-estimation').val(),
-            worker: $('#assign-to').children(':selected').attr('id').split('-')[1],
+			priorityId: $('#add-project-priority-select').children(":selected").attr("id").split('-')[1],
+            estimationTime: $('#add-project-estimation').val(),
+            workerId: $('#assign-to').children(':selected').attr('id').split('-')[1],
 		}
 		console.log(JSON.stringify(task));
         

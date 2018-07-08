@@ -15,11 +15,11 @@ var properties = {
 		var query_url;
 		
 		if(fileName == 'my-projects.html'){ 
-			query_url = properties.API_HOST + properties.API_ROOT + "projects/owner/27";//+ currentUserId,  //TODO
+			query_url = properties.API_HOST + properties.API_ROOT + "projects/owner/" + currentUserId;
 		}else if(fileName == 'all-projects.html'){
 			query_url = properties.API_HOST + properties.API_ROOT + 'projects';
 		}else if(fileName == 'my-work.html'){
-			query_url = properties.API_HOST + properties.API_ROOT + 'tasks/workers-tasks/27' // + TODO: currentUserId;
+			query_url = properties.API_HOST + properties.API_ROOT + 'tasks/workers-tasks' + currentUserId;
 		}else{
 			query_url = properties.API_HOST + properties.API_ROOT + 'projects';
 		}
@@ -84,22 +84,33 @@ var properties = {
 			            		'</div>' +
 			            		 generateProgressBar(element) + 
 			            		'<div class="col-xs-12 col-md-4">' + 
-			            		'<button onClick="getTaskDetails('+ (element.id == undefined ? element.taskId : element.id) +')" type="button" title="" class="btn ditails-btn">View details</button>' +
+			            		'<button id="taskDetails-'+ (element.id == undefined ? element.taskId : element.id) +'" type="button" title="" class="btn ditails-btn taskDitails">View details</button>' +
 			            		'<button data-id="'+ (element.id == undefined ? element.taskId : element.id) +'" class="btn add-task-btn" data-toggle="modal" data-target="#myTaskCreateModal">Add task <i class="fas fa-plus"></i></button>' +
 			            		'</div>' +
 			            	'</div>' +	
 			            	'<div class="panel"></div>';
 	}
 
+	$(document).on('click', '.taskDitails', function(event){
+		event.stopImmediatePropagation();
+		var taskId = event.target.id.split('-')[1];
+		getTaskDetails(taskId);
+	});
+
+
 	function generateProgressBar(task){
 		/*if(task.estimation == undefined){
 			return '<div class="col-xs-12 col-md-1"></div>';
 		}*/
-		var estimationTime = 120;//task.timeEstimation;
-		var remaining = 25;//task.remaining;
-		var donePersent = 100 - Math.round(remaining/estimationTime*100);
-		var roundTo10done = ((donePersent % 10 > 4) ? (donePersent - donePersent % 10 + 10) : (donePersent - donePersent % 10));
-
+		if(task.estimation != undefined){
+			var estimationTime = task.estimation.timeEstimation;
+			var remaining = task.estimation.remaining;
+			var donePersent = 100 - Math.round(remaining/estimationTime*100);
+			var roundTo10done = ((donePersent % 10 > 4) ? (donePersent - donePersent % 10 + 10) : (donePersent - donePersent % 10));
+		}else{
+			var donePersent = 0;
+			var roundTo10done = 0;
+		}
 		return '<div class="col-xs-12 col-md-1"><div class="progress" data-percentage="' + roundTo10done + '">' +
 									'<span class="progress-left">' +
 									'<span class="progress-bar"></span></span>' +
@@ -141,7 +152,7 @@ var properties = {
 			    	data = filterTaskByStatus(tasks_status, data); 
 
 			    	$.each(data, function(index, element) {
-			    		console.log("Name: " + element.id + " status: " + element.statusDto.title);
+			    		console.log("Name: " + element.id + " status: " + element.status.title);
 			            panel.innerHTML = panel.innerHTML +
 			            	generateAccordionDivContent(element);
 			        });
@@ -158,8 +169,9 @@ var properties = {
 	function filterTaskByStatus(statusTitle, data){
 		if(statusTitle === 'all') return data;
 		var filteredTasks = [];
+
 		// for TaskMongo
-		if(data.length > 0 && data[0].statusDto == undefined){
+		if(data.length > 0 && data[0].status == undefined){
 			for(var i = 0; i < data.length; i++){
 				$.ajax({ 
 				    'async': false,
@@ -184,21 +196,21 @@ var properties = {
 
 		if(statusTitle === 'done'){
 			for(var i = 0; i < data.length; i++){
-				if(data[i].statusDto.title === 'DONE'){
+				if(data[i].status.title === 'DONE'){
 					filteredTasks.push(data[i]);
 				}
 			}
 			return filteredTasks;
 		}else if(statusTitle === 'todo'){
 			for(var i = 0; i < data.length; i++){
-				if(data[i].statusDto.title === 'TODO'){
+				if(data[i].status.title === 'TODO'){
 					filteredTasks.push(data[i]);
 				}
 			}
 			return filteredTasks;
 		}else if(statusTitle === 'doing'){
 			for(var i = 0; i < data.length; i++){
-				if(data[i].statusDto.title === 'DOING'){
+				if(data[i].status.title === 'DOING'){
 					filteredTasks.push(data[i]);
 				}
 			}
@@ -221,14 +233,15 @@ var properties = {
 			    dataType: 'json',
 			    headers: {"Authorization": sessionStorage.getItem('token')},
 			    success: function (data) {
-			    	/*sessionStorage['currentEstimationId'] = data.estimationDto.id;
-			    	console.log("sessionStorage['currentEstimationId']: " + sessionStorage['currentEstimationId']);*/
+			    	sessionStorage['currentEstimationId'] = data.estimation.id;
+			    
 			    	// Get worker
+			    	console.log("MY: " + JSON.stringify(data));
 			    	var worker;
 			    	$.ajax({ 
 					    'async': false,
 					    type: 'GET', 
-					    url: properties.API_HOST + properties.API_ROOT + "users/" + data.worker, 
+					    url: properties.API_HOST + properties.API_ROOT + "users/" + data.workerId, 
 					    dataType: 'json',
 					    headers: {"Authorization": sessionStorage.getItem('token')},
 					    success: function (data) {
@@ -236,14 +249,29 @@ var properties = {
 					 	}
 					}); 
 
+			    	var loggedTime = 0;
+					$.ajax({ 
+				        'async': false,
+				        type: 'GET', 
+				        url: properties.API_HOST + properties.API_ROOT + 'log-work/by-est/' + data.estimation.id,
+				        headers: {"Authorization": sessionStorage.getItem('token')},
+				        dataType: 'json',
+				        success: function (data) { 
+				            $.each(data, function(index, element) {
+				                loggedTime+=element.logged;
+				            });
+				        }
+				    });
+
+
 			    	$('#projectDetailsModal').modal('show');
 					
 					$('#details-name').append(data.name);
 			    	$('#details-assignee').append(worker);
-			    	$('#details-estimation').append(data.estimation.estimation);
-			   		$('#details-logged').append(data.logged);
-			   		$('#details-priority').append(data.priority);
-			   		$('#details-status').append(data.status);
+			    	$('#details-estimation').append(data.estimation.timeEstimation);
+			   		$('#details-logged').append(loggedTime);
+			   		$('#details-priority').append(data.priority.title);
+			   		$('#details-status').append(data.status.title);
 			   		$('#details-remaining').append(data.estimation.remaining);		
 			    },
 			    error:function (xhr, ajaxOptions, thrownError){
@@ -275,13 +303,15 @@ var properties = {
 /*
 Details. Add Log work
 */
- $(document).on('click', '#add-logwork-btn', function(){
- 	closeAnotherDetailsBlock('#add-logwork-btn');
+ $(document).on('click', '#add-logwork-btn', function(event){
+ 	event.stopImmediatePropagation();
+ 	closeAnotherDetailsBlock('#log-work-block'); 
  	$('#log-work-block').removeClass('d-none');
  	$('#add-logwork-btn').addClass('d-none');
  });
 
- $(document).on('click', '#cancel-add-log-work-btn', function(){
+ $(document).on('click', '#cancel-add-log-work-btn', function(event){
+ 	event.stopImmediatePropagation();
  	$('#log-work-block').addClass('d-none');
  	$('#add-logwork-btn').removeClass('d-none');
  });
@@ -290,15 +320,17 @@ Details. Add Log work
 /*
 Details. Add comment
 */
-$(document).on('click', '#add-comments-btn', function(){
-	closeAnotherDetailsBlock('#add-comments-btn');
+$(document).on('click', '#add-comments-btn', function(event){
+	event.stopImmediatePropagation();
+	closeAnotherDetailsBlock('#comment-add-block'); 
  	$('#comment-add-block').removeClass('d-none');
  	$('#add-comments-btn').addClass('d-none');
 });
 
 
 
- $(document).on('click', '#cancel-add-comment-btn', function(){
+ $(document).on('click', '#cancel-add-comment-btn', function(event){
+ 	event.stopImmediatePropagation();
  	$('#comment-text').val(null);
   	$('#comment-add-block').addClass('d-none');
  	$('#add-comments-btn').removeClass('d-none');
@@ -343,8 +375,9 @@ $(document).on('click', '#add-comment-submit-btn', function(event){
 /*
 Display list comments
 */
- $(document).on('click', '#comments-btn', function(){
- 	closeAnotherDetailsBlock('#comments-btn');
+ $(document).on('click', '#comments-btn', function(event){
+ 	event.stopImmediatePropagation();
+ 	closeAnotherDetailsBlock('#comment-add-block');
  	$('#comment-list-block').removeClass('d-none');
  	$('#comments-btn').addClass('d-none');
  	
@@ -416,7 +449,7 @@ $(document).on('click', '#add-logwork-submit-btn', function(event){
  	$.ajax({
  		'async': false,
         type: 'POST', 
-        url: properties.API_HOST + properties.API_ROOT + 'log-work/' + sessionStorage.getItem('currentTaskId') + '/log-works/' + $('#remaining-time').val(),
+        url: properties.API_HOST + properties.API_ROOT + 'log-work/' + sessionStorage.getItem('currentEstimationId') + '/log-works/' + $('#remaining-time').val(),
         headers: {"Authorization": sessionStorage.getItem('token')},
         contentType: "application/json; charset=utf-8",
 		crossDomain: true,
@@ -445,15 +478,80 @@ $(document).on('click', '#add-logwork-submit-btn', function(event){
  });
 
 
- $(document).on('click', '#close-comment-list-btn', function(){
+/*Display list logworks*/
+$(document).on('click', '#log-works-btn', function(event){
+	event.stopImmediatePropagation();
+	closeAnotherDetailsBlock('#log-work-list');
+	cleanLogworkDisplayList();
+	$('#log-work-list').removeClass('d-none');
+	$('#log-works-btn').addClass('d-none');
+
+	$.ajax({ 
+		    'async': false,
+		    type: 'GET', 
+		    url: properties.API_HOST + properties.API_ROOT + "log-work/by-est/" + sessionStorage.getItem('currentEstimationId'), 
+		    dataType: 'json',
+		    headers: {"Authorization": sessionStorage.getItem('token')},
+		    success: function (data) { 
+		        $.each(data, function(index, element) {
+		        	
+		        	console.log("Log WORK: " + JSON.stringify(element));
+		        	var date = element.lastUpdate 
+		            $('#logwork-display-area').append('<div class="row">' + 
+                    						'<div class="col-md-3 small font-italic">' +
+                    							date.dayOfMonth + '-' + (date.monthValue<10 ? '0'+date.monthValue : date.monthValue) + '-' + date.year + '<br>' +
+                    							date.hour + ':' + date.minute + ':' + date.second +
+                    						'</div>'+
+
+                    						'<div class="col-md-9">' +
+                        						'<p>' + element.description + '</p>' +
+                        						'<p class="font-weight-bold">Logged time: ' + element.logged + '</p>' +
+  											'</div>' +
+                						'</div><hr class="details-line">  ');
+		        });
+		    },
+		    error: function(xhr){
+		    	$('#logwork-display-area').empty();
+		    	switch (xhr.status) {
+					case 401:
+						window.location.href = 'login.html';
+                        break;
+                    case 404:
+                    	$('#logwork-info-block').empty();
+                    	$('#logwork-info-block').append('There are no comments.');
+                    	break;
+                    default:
+                        $("#status").removeClass('d-none');
+                        $("#status").text('Internal server error...Try again later.');
+                        break;
+				}
+		    }
+		});
+
+});
+
+
+ $(document).on('click', '#close-comment-list-btn', function(event){
+ 	event.stopImmediatePropagation();
  	clearCommentDisplayList();
  	$('#comment-list-block').addClass('d-none');
  	$('#comments-btn').removeClass('d-none');
  });
 
+ $(document).on('click', '#close-logwork-list-btn', function(event){
+ 	event.stopImmediatePropagation();
+ 	cleanLogworkDisplayList();
+ 	$('#log-work-list').addClass('d-none');
+ 	$('#log-works-btn').removeClass('d-none');
+ });
+
  function clearCommentDisplayList(){
  	$('#comments-info-block').empty();
  	$('#comment-display-area').empty();
+ }
+ function cleanLogworkDisplayList(){
+ 	$('#logwork-display-area').empty();
+ 	$('#logwork-info-block').empty();
  }
  function clearAddComment(){
  	$('#comment-text').val(null);
@@ -468,10 +566,11 @@ $(document).on('hidden.bs.modal','#projectDetailsModal', function () {
   clearCommentDisplayList();
   clearAddComment();
   clearAddLogwork();
+  cleanLogworkDisplayList();
 
   $('#comment-add-block').addClass('d-none');
   $('#comment-list-block').addClass('d-none');
-  $('#log-work-block').addClass('d-none');
+  $('#log-work-list').addClass('d-none');
   $('#comment-add-block').addClass('d-none');
 
   $('#comments-btn').removeClass('d-none');
@@ -483,7 +582,7 @@ $(document).on('hidden.bs.modal','#projectDetailsModal', function () {
 // Close another details block
 function closeAnotherDetailsBlock(blockName){
 	var blockList = ['#log-work-list', '#log-work-block', '#comment-add-block', '#comment-list-block'];
-	if(blockList[0] != blockName){
+	if(blockList[0] == blockName){
 		$('#log-work-block').addClass('d-none');
 		$('#add-logwork-btn').removeClass('d-none');
 
@@ -492,7 +591,7 @@ function closeAnotherDetailsBlock(blockName){
 
 		$('#comment-list-block').addClass('d-none');
 		$('#comments-btn').removeClass('d-none');
-	}else if(blockList[1] != blockName){
+	}else if(blockList[1] == blockName){
 		$('#log-work-list').addClass('d-none');
 		$('#log-works-btn').removeClass('d-none');
 
@@ -501,7 +600,7 @@ function closeAnotherDetailsBlock(blockName){
 
 		$('#comment-list-block').addClass('d-none');
 		$('#comments-btn').removeClass('d-none');
-	}else if(blockList[2] != blockName){
+	}else if(blockList[2] == blockName){
 		$('#log-work-list').addClass('d-none');
 		$('#log-works-btn').removeClass('d-none');
 
@@ -510,7 +609,7 @@ function closeAnotherDetailsBlock(blockName){
 
 		$('#comment-list-block').addClass('d-none');
 		$('#comments-btn').removeClass('d-none');
-	}else if(blockList[3] != blockName){
+	}else if(blockList[3] == blockName){
 		$('#log-work-list').addClass('d-none');
 		$('#log-works-btn').removeClass('d-none');
 
@@ -606,7 +705,8 @@ $.ajax({
  
 
   // if user choose specialization -> display all potential asignees with this specialization
-  $('#task-specializations').change(function(){
+  $('#task-specializations').change(function(event){
+  	event.stopImmediatePropagation();
   	var specializationId = $('#task-specializations').children(':selected').attr('id').split('-')[1];
   	var urlUserBySpecializationId = 'users/specializations/' + specializationId;
   	if(specializationId === 'all'){
@@ -637,13 +737,16 @@ $.ajax({
     });
   });
 
+
   $( "#add-task-submit").on('click', function(event) {
+  	event.stopImmediatePropagation();
 	var task = {
 			ownerId: sessionStorage.getItem('userId'),
 			parentId: $('#add-task-parentId').val(),
 			name: $('#add-task-name').val(),
+			statusId: null,
 			priorityId: $('#add-task-priority-select').children(":selected").attr("id").split('-')[1],
-            estimation: $('#add-task-estimation').val(),
+            estimationTime: $('#add-task-estimation').val(),
             workerId: $('#task-assign-to').children(':selected').attr('id').split('-')[1],
 		}
 		console.log(JSON.stringify(task));
@@ -656,11 +759,10 @@ $.ajax({
 		    dataType: "json",
 		    data: JSON.stringify(task),
 		    success: function(data){
-		    	window.location.href = 'my-projects.html';
+		    	$('#'+task.parentId).next().append(generateAccordionDivContent(task));
 		    },
 		    error:function (xhr, ajaxOptions, thrownError){
 		    	// For test. Move to success callback function
-		    	$('#'+task.parentId).next().append(generateAccordionDivContent(task));
 				
 				switch (xhr.status) {
                     default:

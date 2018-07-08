@@ -242,7 +242,7 @@ hr.details-line{
 }
 
 #cancel-add-log-work-btn, #add-logwork-submit-btn, #cancel-add-comment-btn, #add-comment-submit-btn,
-#comments-btn, #add-comments-btn, #log-works-btn, #add-logwork-btn, #close-comment-list-btn{
+#comments-btn, #add-comments-btn, #log-works-btn, #add-logwork-btn, #close-comment-list-btn, #close-logwork-list-btn{
   font-weight: bold;
   padding: 4px 9px;
   margin: 5px;
@@ -252,7 +252,7 @@ hr.details-line{
   background-color: #30A98D;
   color: white;
 }
-#cancel-add-log-work-btn, #cancel-add-comment-btn, #comments-btn, #log-works-btn, #close-comment-list-btn{
+#cancel-add-log-work-btn, #cancel-add-comment-btn, #comments-btn, #log-works-btn, #close-comment-list-btn, #close-logwork-list-btn{
   background-color: #9C3436;
   color: #EBD89E;
 }
