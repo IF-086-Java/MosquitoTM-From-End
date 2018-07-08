@@ -345,7 +345,6 @@ $(document).on('click', '#add-comment-submit-btn', function(event){
  	};
  	
  	$.ajax({
- 		'async': false,
         type: 'POST', 
         url: properties.API_HOST + properties.API_ROOT + 'tasks/'+ sessionStorage.getItem('currentTaskId') +'/comments',
         headers: {"Authorization": sessionStorage.getItem('token')},
@@ -377,12 +376,11 @@ Display list comments
 */
  $(document).on('click', '#comments-btn', function(event){
  	event.stopImmediatePropagation();
- 	closeAnotherDetailsBlock('#comment-add-block');
+ 	closeAnotherDetailsBlock('#comment-list-block');
  	$('#comment-list-block').removeClass('d-none');
  	$('#comments-btn').addClass('d-none');
  	
  	$.ajax({ 
-		    'async': false,
 		    type: 'GET', 
 		    url: properties.API_HOST + properties.API_ROOT + "tasks/" + sessionStorage.getItem('currentTaskId') + "/comments", 
 		    dataType: 'json',
@@ -447,7 +445,6 @@ $(document).on('click', '#add-logwork-submit-btn', function(event){
  	};
  	console.log("Logwork: " + JSON.stringify(logwork));
  	$.ajax({
- 		'async': false,
         type: 'POST', 
         url: properties.API_HOST + properties.API_ROOT + 'log-work/' + sessionStorage.getItem('currentEstimationId') + '/log-works/' + $('#remaining-time').val(),
         headers: {"Authorization": sessionStorage.getItem('token')},
@@ -455,7 +452,10 @@ $(document).on('click', '#add-logwork-submit-btn', function(event){
 		crossDomain: true,
         data: JSON.stringify(logwork),
         success: function (data) {
-        	alert('Succuss add logwork'); 
+        	$('#details-remaining').text($('#remaining-time').val());
+			$('#details-logged').text(parseInt($('#details-logged').text()) + parseInt($('#logged-time').val()));
+			alert($('#details-logged').val() + $('#logged-time').val());
+
             $('#log-work-block').addClass('d-none');
             $('#add-logwork-btn').removeClass('d-none');
             // clean
@@ -487,12 +487,15 @@ $(document).on('click', '#log-works-btn', function(event){
 	$('#log-works-btn').addClass('d-none');
 
 	$.ajax({ 
-		    'async': false,
 		    type: 'GET', 
 		    url: properties.API_HOST + properties.API_ROOT + "log-work/by-est/" + sessionStorage.getItem('currentEstimationId'), 
 		    dataType: 'json',
 		    headers: {"Authorization": sessionStorage.getItem('token')},
-		    success: function (data) { 
+		    success: function (data) {
+		    	if(data == undefined || data.length == 0){
+		    		$('#logwork-display-area').append('<p class="text-danger text-center">There are no logworks.</p>');
+		    		return;
+		    	} 
 		        $.each(data, function(index, element) {
 		        	
 		        	console.log("Log WORK: " + JSON.stringify(element));
@@ -516,14 +519,13 @@ $(document).on('click', '#log-works-btn', function(event){
 					case 401:
 						window.location.href = 'login.html';
                         break;
-                    case 404:
-                    	$('#logwork-info-block').empty();
-                    	$('#logwork-info-block').append('There are no comments.');
-                    	break;
                     default:
+                    	$('#logwork-display-area').append('<p class="text-danger text-center">There are no logworks.</p>');
+                    	break;
+                    /*default:
                         $("#status").removeClass('d-none');
                         $("#status").text('Internal server error...Try again later.');
-                        break;
+                        break;*/
 				}
 		    }
 		});
@@ -653,7 +655,6 @@ $.ajax({
 
     //specializations
     $.ajax({
-    	'async': false,
     	type: 'GET',
     	url: properties.API_HOST + properties.API_ROOT + 'specializations',
     	headers: {"Authorization": sessionStorage.getItem('token')},
@@ -679,7 +680,6 @@ $.ajax({
 
     //users
     $.ajax({
-    	'async': false,
     	type: 'GET',
     	url: properties.API_HOST + properties.API_ROOT + 'users',
     	headers: {"Authorization": sessionStorage.getItem('token')},
@@ -749,6 +749,13 @@ $.ajax({
             estimationTime: $('#add-task-estimation').val(),
             workerId: $('#task-assign-to').children(':selected').attr('id').split('-')[1],
 		}
+
+		if(!isAddTaskDataValid(task)){
+            $('#status-add-task').removeClass('d-none');
+            $('#status-add-task').empty();
+            $('#status-add-task').append('You have entered invalid data.'); 
+            return;
+        }
 		console.log(JSON.stringify(task));
         
 		$.ajax({
@@ -759,18 +766,40 @@ $.ajax({
 		    dataType: "json",
 		    data: JSON.stringify(task),
 		    success: function(data){
+		    	$('#add-task-name').val(null);
+		    	$('#add-task-estimation').val(null);
+		    	$('#status-add-task').empty();
+		    	$('#status-add-task').removeClass('d-none');
+		    	$("#status-add-task").text('You have successfully created a new task.');
 		    	$('#'+task.parentId).next().append(generateAccordionDivContent(task));
 		    },
 		    error:function (xhr, ajaxOptions, thrownError){
-		    	// For test. Move to success callback function
-				
 				switch (xhr.status) {
+					case 400:
+						$("#status-add-task").empty();
+                        $("#status-add-task").removeClass('d-none');
+                        $("#status-add-task").text('You have entered invalid data.');
                     default:
-                        $("#status").removeClass('d-none');
-                        $("#status").text('Something is wrong on server');
+                    	$("#status-add-task").empty();
+                        $("#status-add-task").removeClass('d-none');
+                        $("#status-add-task").text('Internal server error...Try again later.');
                         break;
 				}
 			}
 		});
 	});
-	
+
+function isAddTaskDataValid(task){
+    var name = task.name;
+    var time = task.estimationTime;
+    if(name == undefined || $.trim(name) === '') return false;
+    if(time == undefined || time <= 0) return false;
+    return true;
+  }
+
+$(document).on('hidden.bs.modal','#myTaskCreateModal', function (){
+	$('#add-task-name').val(null);
+	$('#add-task-estimation').val(null);
+	$('#status-add-task').empty();
+	$('#status-add-task').addClass('d-none');
+});	

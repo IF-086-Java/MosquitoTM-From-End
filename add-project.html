@@ -22,7 +22,7 @@
                       </div>
                     <div class="form-group">
                         <label for="add-project-estimation" class="font-weight-bold">Estimation:</label>
-                        <input type="number" id="add-project-estimation" name="add-project-estimation" class="form-control" placeholder="Input estimation" required="true">
+                        <input type="number" id="add-project-estimation" name="add-project-estimation" class="form-control" placeholder="Input estimation" required="true" min="0">
                     </div>
 
                     <div class="form-group">
@@ -42,6 +42,7 @@
                     </div>
                     <div class="form-row">
                         <div class="col-md-12">
+                            <p class="text-danger text-center d-none" id="add-project-info"></p>
                             <input type="button" id="add-project-submit" class="btn btn-info" style="float: right;" value="Create Project">
                         </div>
                     </div>
@@ -61,7 +62,7 @@
   API_HOST: 'http://localhost:8080/',
   API_ROOT: 'api/'
 };
-	console.log("TOKEN: " + sessionStorage.getItem('token'))
+
 	
     $.ajax({ 
         'async': false,
@@ -176,6 +177,7 @@
 
   $("#add-project-submit").click(function(event) {
     event.stopImmediatePropagation();
+    
 	var task = {
 			ownerId: sessionStorage.getItem('userId'),
 			name: $('#add-project-name').val(),
@@ -183,6 +185,12 @@
             estimationTime: $('#add-project-estimation').val(),
             workerId: $('#assign-to').children(':selected').attr('id').split('-')[1],
 		}
+        if(!isAddTaskDataValid(task)){
+            $('#add-project-info').removeClass('d-none');
+            $('#add-project-info').empty();
+            $('#add-project-info').append('You have entered invalid data.'); 
+            return;
+        }
 		console.log(JSON.stringify(task));
         
 		$.ajax({
@@ -193,18 +201,31 @@
 		    dataType: "json",
 		    data: JSON.stringify(task),
 		    success: function(data){
-                alert('success created project');
+                alert("Created project");
 		    	window.location.href = 'my-projects.html';
 		    },
 		    error:function (xhr, ajaxOptions, thrownError){
-                alert('NO created project');
+                alert("No created project");
 				switch (xhr.status) {
+                    case 400:
+                        $('#add-project-info').removeClass('d-none');
+                        $('#add-project-info').empty();
+                        $('#add-project-info').append('You have entered invalid data.');
+                        break;
                     default:
-                        $("#status").removeClass('d-none');
-                        $("#status").text('Something is wrong on server');
+                        $("#add-project-info").removeClass('d-none');
+                        $("#add-project-info").text('Internal server error...Try again later.');
                         break;
 				}
 			}
 		});
   });
+
+  function isAddTaskDataValid(task){
+    var name = task.name;
+    var time = task.estimationTime;
+    if(name == undefined || $.trim(name) === '') return false;
+    if(time == undefined || time <= 0) return false;
+    return true;
+  }
 </script>
