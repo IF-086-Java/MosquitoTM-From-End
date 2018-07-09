@@ -503,7 +503,8 @@ $(document).on('click', '#log-works-btn', function(event){
 		            $('#logwork-display-area').append('<div class="row">' + 
                     						'<div class="col-md-3 small font-italic">' +
                     							date.dayOfMonth + '-' + (date.monthValue<10 ? '0'+date.monthValue : date.monthValue) + '-' + date.year + '<br>' +
-                    							date.hour + ':' + date.minute + ':' + date.second +
+                    							(date.hour) + ':' + (date.minute < 10 ? '0'+date.minute : date.minute) + ':' + 
+                    							(date.second<10 ? '0'+date.second : date.second) +
                     						'</div>'+
 
                     						'<div class="col-md-9">' +
