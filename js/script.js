@@ -19,7 +19,7 @@ var properties = {
 		}else if(fileName == 'all-projects.html'){
 			query_url = properties.API_HOST + properties.API_ROOT + 'projects';
 		}else if(fileName == 'my-work.html'){
-			query_url = properties.API_HOST + properties.API_ROOT + 'tasks/workers-tasks' + currentUserId;
+			query_url = properties.API_HOST + properties.API_ROOT + 'tasks/workers-tasks/' + currentUserId;
 		}else{
 			query_url = properties.API_HOST + properties.API_ROOT + 'projects';
 		}
@@ -86,11 +86,13 @@ var properties = {
 			            		'<button id="taskDetails-'+ (element.id == undefined ? element.taskId : element.id) +'" type="button" title="" class="btn ditails-btn taskDitails">View details</button>' +
 			            		'<button data-id="'+ (element.id == undefined ? element.taskId : element.id) +'" class="btn add-task-btn" data-toggle="modal" data-target="#myTaskCreateModal">Add task <i class="fas fa-plus"></i></button>' +
 			            		'</div>' +
-			            		'<div id="delete-'+ (element.id == undefined ? element.taskId : element.id) +'" class="col-md-1 delete-btn align-bottom"><i class="fas fa-trash align-bottom"></i></div>' +
+			            		'<div class="col-md-1">' +
+			            		'<i class="fas fa-trash align-bottom delete-btn" id="delete-'+ (element.id == undefined ? element.taskId : element.id) +'"></i>' +
+			            		'</div>' +  
 			            	'</div>' +	
 			            	'<div class="panel"></div>';
 	}
-
+								
 	$(document).on('click', '.taskDitails', function(event){
 		event.stopImmediatePropagation();
 		var taskId = event.target.id.split('-')[1];
@@ -132,9 +134,21 @@ var properties = {
 		
 	}
 
-	$('.delete-btn').on('click', function(event){
-			alert(this.id.split('-')[1]);
-			return false;
+	$(document).on('click','.delete-btn', function(event){
+			event.stopImmediatePropagation();
+			var taskId = $(this).attr('id').split('-')[1];
+
+			$.ajax({ 
+				    'async': true,
+				    type: 'DELETE', 
+				    headers: {"Authorization": sessionStorage.getItem('token')}, 
+				    url: properties.API_HOST + properties.API_ROOT + 'tasks/' + taskId, 
+				    dataType: 'json',
+				    success: function (data) {
+				    	$('#' + taskId).remove();
+				    }
+				});
+			
 	});
 
 	function reloadAccordion(){
