@@ -87,7 +87,7 @@ var properties = {
 			            		'<button data-id="'+ (element.id == undefined ? element.taskId : element.id) +'" class="btn add-task-btn" data-toggle="modal" data-target="#myTaskCreateModal">Add task <i class="fas fa-plus"></i></button>' +
 			            		'</div>' +
 			            		'<div class="col-md-1">' +
-			            		'<i class="fas fa-trash align-bottom delete-btn" id="delete-'+ (element.id == undefined ? element.taskId : element.id) +'"></i>' +
+			            		'<i class="fas fa-trash align-bottom delete-btn" title="Click to delete" id="delete-'+ (element.id == undefined ? element.taskId : element.id) +'"></i>' +
 			            		'</div>' +  
 			            	'</div>' +	
 			            	'<div class="panel"></div>';

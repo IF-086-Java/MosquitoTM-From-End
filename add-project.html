@@ -201,11 +201,9 @@
 		    dataType: "json",
 		    data: JSON.stringify(task),
 		    success: function(data){
-                alert("Created project");
 		    	window.location.href = 'my-projects.html';
 		    },
 		    error:function (xhr, ajaxOptions, thrownError){
-                alert("No created project");
 				switch (xhr.status) {
                     case 400:
                         $('#add-project-info').removeClass('d-none');
