@@ -829,3 +829,29 @@ $(document).on('hidden.bs.modal','#myTaskCreateModal', function (){
 	$('#status-add-task').empty();
 	$('#status-add-task').addClass('d-none');
 });	
+
+
+/*Add Trello Card*/
+$('#add-trello').click(function(){
+	$.ajax({
+    	'async': false,
+    	type: 'GET',
+    	url: properties.API_HOST + properties.API_ROOT + 'trello/' + sessionStorage.getItem('userId'),
+    	headers: {"Authorization": sessionStorage.getItem('token')},
+    	dataType: 'json',
+    	success: function(data) {
+
+    	},error: function(xhr){
+        	switch (xhr.status) {
+					case 401:
+						window.location.href = 'my-projects.html';
+                        break;
+                    default:
+                        $("#accordionDiv").prepend('<div class="alert alert-danger" role="alert"><strong>'+
+            									'There are no trello cards.' + 
+        										'</strong></div>');
+                        break;
+				}
+        }
+	});
+});

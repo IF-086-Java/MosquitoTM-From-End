@@ -170,7 +170,7 @@ ul.nav.navbar-nav li a:link {
   color: #EBD89E;
 }
 
-#add-project{
+#add-project, #add-trello{
   margin-top: 7px;
   background-color: #9C3436;
   color: #fff;
