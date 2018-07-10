@@ -154,7 +154,7 @@ ul.nav.navbar-nav li a:link {
 
 /*Add project and task buttons*/
 .add-task-btn, .ditails-btn{
-  width: 115px !important;
+  width: 7em !important;
   font-weight: bold;
   padding: 4px 9px;
   margin: 5px;
@@ -496,3 +496,6 @@ Due to the split circle of progress-left and progress right, we must use the ani
 }
 
 
+.accordion{
+  padding-right: 0 !important;
+}

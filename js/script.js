@@ -77,9 +77,8 @@ var properties = {
 	}
 
 	function generateAccordionDivContent(element) {
-		generateProgressBar(element);
 		return '<div title="Click to expand" class="accordion row" id="' + (element.id == undefined ? element.taskId : element.id) + '">' + 
-			            		'<div class="col-xs-12 col-md-7">' +
+			            		'<div class="col-xs-12 col-md-6">' +
 			            			'<span style="display:inline-block;">' + (element.name == undefined ? element.taskName : element.name) + '</span>' +
 			            		'</div>' +
 			            		 generateProgressBar(element) + 
@@ -87,6 +86,7 @@ var properties = {
 			            		'<button id="taskDetails-'+ (element.id == undefined ? element.taskId : element.id) +'" type="button" title="" class="btn ditails-btn taskDitails">View details</button>' +
 			            		'<button data-id="'+ (element.id == undefined ? element.taskId : element.id) +'" class="btn add-task-btn" data-toggle="modal" data-target="#myTaskCreateModal">Add task <i class="fas fa-plus"></i></button>' +
 			            		'</div>' +
+			            		'<div id="delete-'+ (element.id == undefined ? element.taskId : element.id) +'" class="col-md-1 delete-btn align-bottom"><i class="fas fa-trash align-bottom"></i></div>' +
 			            	'</div>' +	
 			            	'<div class="panel"></div>';
 	}
@@ -102,11 +102,17 @@ var properties = {
 		/*if(task.estimation == undefined){
 			return '<div class="col-xs-12 col-md-1"></div>';
 		}*/
-		if(task.estimation != undefined){
+
+		if(task.estimation != undefined && task.estimation.timeEstimation != undefined && task.estimation.remaining != undefined 
+			&& task.estimation.timeEstimation != 0 && task.estimation.remaining != 0){
 			var estimationTime = task.estimation.timeEstimation;
 			var remaining = task.estimation.remaining;
 			var donePersent = 100 - Math.round(remaining/estimationTime*100);
 			var roundTo10done = ((donePersent % 10 > 4) ? (donePersent - donePersent % 10 + 10) : (donePersent - donePersent % 10));
+			if(donePersent < 0){
+				donePersent = 100;
+				roundTo10done = 100;
+			}
 		}else{
 			var donePersent = 0;
 			var roundTo10done = 0;
@@ -119,12 +125,17 @@ var properties = {
 									'</span>' +
 									'<div class="progress-value">' +
 									'<div>' +
-									donePersent + '%' +
-									'<br><span class="progressbar-title">Done</span>' +
+									(donePersent == 100 ? '' : donePersent + '%<br>') + 
+									'<span class="progressbar-title">Done</span>' +
 									
 									'</div></div></div></div>';
 		
 	}
+
+	$('.delete-btn').on('click', function(event){
+			alert(this.id.split('-')[1]);
+			return false;
+	});
 
 	function reloadAccordion(){
 		var acc = document.getElementsByClassName("accordion");
@@ -343,7 +354,8 @@ $(document).on('click', '#add-comment-submit-btn', function(event){
  		text: $('#comment-text').val(),
  		taskId: sessionStorage.getItem('currentTaskId')
  	};
- 	
+ 	$('#comment-text').val(null);
+
  	$.ajax({
         type: 'POST', 
         url: properties.API_HOST + properties.API_ROOT + 'tasks/'+ sessionStorage.getItem('currentTaskId') +'/comments',
@@ -354,8 +366,6 @@ $(document).on('click', '#add-comment-submit-btn', function(event){
         success: function (data) { 
             $('#comment-add-block').addClass('d-none');
             $('#add-comments-btn').removeClass('d-none');
-            // clean
-            $('#comment-text').val(null);
         },error: function(xhr){
         	switch (xhr.status) {
 					case 401:
@@ -379,6 +389,7 @@ Display list comments
  	closeAnotherDetailsBlock('#comment-list-block');
  	$('#comment-list-block').removeClass('d-none');
  	$('#comments-btn').addClass('d-none');
+ 	$('#comment-text').val(null);
  	
  	$.ajax({ 
 		    type: 'GET', 
