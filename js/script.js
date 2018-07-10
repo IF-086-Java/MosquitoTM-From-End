@@ -847,9 +847,12 @@ $('#add-trello').click(function(){
 						window.location.href = 'my-projects.html';
                         break;
                     default:
-                        $("#accordionDiv").prepend('<div class="alert alert-danger" role="alert"><strong>'+
+                    	if($("#no-trello").length == 0) {
+  							 $("#accordionDiv").prepend('<div class="alert alert-danger"id="no-trello" role="alert"><strong>'+
             									'There are no trello cards.' + 
         										'</strong></div>');
+						}
+                       
                         break;
 				}
         }
