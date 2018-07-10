@@ -479,7 +479,6 @@ $(document).on('click', '#add-logwork-submit-btn', function(event){
         success: function (data) {
         	$('#details-remaining').text($('#remaining-time').val());
 			$('#details-logged').text(parseInt($('#details-logged').text()) + parseInt($('#logged-time').val()));
-			alert($('#details-logged').val() + $('#logged-time').val());
 
             $('#log-work-block').addClass('d-none');
             $('#add-logwork-btn').removeClass('d-none');
@@ -836,15 +835,15 @@ $('#add-trello').click(function(){
 	$.ajax({
     	'async': false,
     	type: 'GET',
-    	url: properties.API_HOST + properties.API_ROOT + 'trello/' + sessionStorage.getItem('userId'),
+    	url: properties.API_HOST + properties.API_ROOT + 'trello/44',// + sessionStorage.getItem('userId'),
     	headers: {"Authorization": sessionStorage.getItem('token')},
     	dataType: 'json',
     	success: function(data) {
-
+    		window.location.href = 'my-projects.html';
     	},error: function(xhr){
         	switch (xhr.status) {
 					case 401:
-						window.location.href = 'my-projects.html';
+						window.location.href = 'login.html';
                         break;
                     default:
                     	if($("#no-trello").length == 0) {
