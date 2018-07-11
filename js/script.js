@@ -543,10 +543,6 @@ $(document).on('click', '#log-works-btn', function(event){
                     default:
                     	$('#logwork-display-area').append('<p class="text-danger text-center">There are no logworks.</p>');
                     	break;
-                    /*default:
-                        $("#status").removeClass('d-none');
-                        $("#status").text('Internal server error...Try again later.');
-                        break;*/
 				}
 		    }
 		});
@@ -796,10 +792,7 @@ $.ajax({
 				if(!$('#'+task.parentId).next().is(':empty')){
 		    		var newTask = generateAccordionDivContent(task);
 		    		newTask = newTask.replace(/undefined/g, data.id);
-		    		console.log(newTask);
 		    		$('#'+task.parentId).next().append(newTask);
-		   		}else{
-		   			alert("Not add");
 		   		}
 		    },
 		    error:function (xhr, ajaxOptions, thrownError){
@@ -832,6 +825,8 @@ $(document).on('hidden.bs.modal','#myTaskCreateModal', function (){
 	$('#status-add-task').empty();
 	$('#status-add-task').addClass('d-none');
 });	
+
+
 
 
 /*Add Trello Card*/
