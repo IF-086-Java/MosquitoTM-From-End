@@ -42,7 +42,7 @@
            
                                 <div class="form-row">
                                     <div class="col-12">
-                                        <p id="status" class="d-none text-danger"></p>
+                                        <p id="status" class="d-none text-danger text-center"></p>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -80,16 +80,17 @@
 					window.location.href = 'my-work.html';
 			    },
 			    error:function (xhr, ajaxOptions, thrownError){
-			    	alert("Error");
+			    	$("#password").val(null);
 					switch (xhr.status) {
 						case 401:
-							console.log(xhr.status);
+                            $("#status").empty();
 							$("#status").removeClass("d-none");
-							$("#status").text("Login or password is not correct.");
+							$("#status").text(xhr.responseJSON.message);
 							break;
 						default:
+                            $("#status").empty();
 	                        $("#status").removeClass('d-none');
-	                        $("#status").text('Something is wrong');
+	                        $("#status").text('Internal server error...Try again later.');
 	                        break;
 					}
 				}, 

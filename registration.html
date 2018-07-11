@@ -52,10 +52,10 @@
                                 </div>
                                 <div class="form-row">
                                     <div class="col-12">
-                                        <p id="status" class="d-none text-danger"></p>
+                                        <p id="status" class="d-none text-danger text-center"></p>
                                     </div>
                                 </div>
-                                <div class="form-group  text-center">
+                                <div class="form-group text-center">
                                         <input type="button" id="submit" class="btn" value="Register">
                                 </div>
                
@@ -95,6 +95,7 @@
             $("#status").text('You have entered invalid information. Please try again');
             return;
         }
+        console.log(JSON.stringify(user));
 
 		$.ajax({
 		    type: "POST",
@@ -106,6 +107,8 @@
                 window.location.href = 'login.html';
 		    },
 		    error:function (xhr, ajaxOptions, thrownError){
+                password: $('#password').val(null);
+                confirmPassword: $('#confirmPassword').val(null);
 				switch (xhr.status) {
 					case 400:
 						$("#status").removeClass('d-none');

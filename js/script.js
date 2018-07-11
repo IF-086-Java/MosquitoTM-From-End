@@ -93,7 +93,7 @@ var properties = {
 			            	'<div class="panel"></div>';
 	}
 								
-	$(document).on('click', '.taskDitails', function(event){
+	$(document).on('click', 'button.taskDitails', function(event){
 		event.stopImmediatePropagation();
 		var taskId = event.target.id.split('-')[1];
 		getTaskDetails(taskId);
@@ -101,10 +101,6 @@ var properties = {
 
 
 	function generateProgressBar(task){
-		/*if(task.estimation == undefined){
-			return '<div class="col-xs-12 col-md-1"></div>';
-		}*/
-
 		if(task.estimation != undefined && task.estimation.timeEstimation != undefined && task.estimation.remaining != undefined 
 			&& task.estimation.timeEstimation != 0 && task.estimation.remaining != 0){
 			var estimationTime = task.estimation.timeEstimation;
@@ -159,9 +155,9 @@ var properties = {
 	};
 
 	function getNextAccLevel(event, currentAccordionDivButton){
-		if(event.toElement.tagName == 'BUTTON') // if Button (not Div) was clicked
+		if(event.target.nodeName == 'BUTTON' || event.target.nodeName == 'I'){
 			return;
-
+		}
 		currentAccordionDivButton.classList.toggle("active");	// add/delete "active" class
 		var panel = currentAccordionDivButton.nextElementSibling; 
 	    
@@ -796,7 +792,15 @@ $.ajax({
 		    	$('#status-add-task').empty();
 		    	$('#status-add-task').removeClass('d-none');
 		    	$("#status-add-task").text('You have successfully created a new task.');
-		    	$('#'+task.parentId).next().append(generateAccordionDivContent(task));
+		    	 $('#'+task.parentId).next();
+				if(!$('#'+task.parentId).next().is(':empty')){
+		    		var newTask = generateAccordionDivContent(task);
+		    		newTask = newTask.replace(/undefined/g, data.id);
+		    		console.log(newTask);
+		    		$('#'+task.parentId).next().append(newTask);
+		   		}else{
+		   			alert("Not add");
+		   		}
 		    },
 		    error:function (xhr, ajaxOptions, thrownError){
 				switch (xhr.status) {
