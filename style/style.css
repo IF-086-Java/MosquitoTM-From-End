@@ -154,7 +154,7 @@ ul.nav.navbar-nav li a:link {
 
 /*Add project and task buttons*/
 .add-task-btn, .ditails-btn{
-  width: 7em !important;
+  width: 8em !important;
   font-weight: bold;
   padding: 4px 9px;
   margin: 5px;

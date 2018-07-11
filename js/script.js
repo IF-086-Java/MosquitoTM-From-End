@@ -35,7 +35,7 @@ var properties = {
 		    dataType: 'json',
 		    success: function (data) {
 		    	var tasks_status = $('#status-work-btn .status-btn-active').attr('id');
-		    	data = filterTaskByStatus(tasks_status, data);
+		    	data = filterTaskByStatus(tasks_status, data, fileName);
 		         $('#accordionDiv').empty();
 		        if(!Array.isArray(data) || data.length == 0){
 		    		infoMsgNoTasks(fileName);
@@ -141,7 +141,9 @@ var properties = {
 				    url: properties.API_HOST + properties.API_ROOT + 'tasks/' + taskId, 
 				    dataType: 'json',
 				    success: function (data) {
+				    	$('#' + taskId).next().remove();
 				    	$('#' + taskId).remove();
+
 				    }
 				});
 			
@@ -187,10 +189,10 @@ var properties = {
 		}
 	}
 
-	function filterTaskByStatus(statusTitle, data){
-		if(statusTitle === 'all') return data;
+	function filterTaskByStatus(statusTitle, data, fileName){
+		if(statusTitle === 'all' && fileName != 'my-work.html') return data;
+		
 		var filteredTasks = [];
-
 		// for TaskMongo
 		if(data.length > 0 && data[0].status == undefined){
 			for(var i = 0; i < data.length; i++){
@@ -201,11 +203,20 @@ var properties = {
 				    url: properties.API_HOST + properties.API_ROOT + 'tasks/'+ (data[i].id == undefined ? data[i].taskId : data[i].id), 
 				    dataType: 'json',
 				    success: function (task) {
-				    	if(statusTitle === 'done' && task.status === 'DONE'){
+				    	console.log("Filter: " + JSON.stringify(task));
+				    	if(task.estimation != undefined && task.estimation.timeEstimation != undefined && task.estimation.remaining){
+				    		data[i].estimation = task.estimation;
+				    		data[i].estimation.timeEstimation = task.estimation.timeEstimation;
+				    		data[i].estimation.remaining = task.estimation.remaining;
+				    	}
+
+				    	if(statusTitle === 'done' && task.status.title === 'DONE'){
 				    		filteredTasks.push(data[i]);
-				    	}else if(statusTitle === 'todo' && task.status === 'TODO'){
+				    	}else if(statusTitle === 'todo' && task.status.title === 'TODO'){
 				    		filteredTasks.push(data[i]);
-				    	}else if(statusTitle === 'doing' && task.status === 'DOING'){
+				    	}else if(statusTitle === 'doing' && task.status.title === 'DOING'){
+				    		filteredTasks.push(data[i]);
+				    	}else if(statusTitle === 'all'){
 				    		filteredTasks.push(data[i]);
 				    	}
 				    }
