@@ -101,6 +101,28 @@ var properties = {
 
 
 	function generateProgressBar(task){
+		// For trello without estimation time
+		console.log("Time: " + task.estimation.timeEstimation);
+		if(task.estimation != undefined && task.estimation.timeEstimation != undefined && task.estimation.remaining != undefined && 
+			task.estimation.timeEstimation == 0 && task.estimation.remaining != 0){
+			var loggedTime = 0;
+					$.ajax({ 
+				        'async': false,
+				        type: 'GET', 
+				        url: properties.API_HOST + properties.API_ROOT + 'log-work/by-est/' + task.estimation.id,
+				        headers: {"Authorization": sessionStorage.getItem('token')},
+				        dataType: 'json',
+				        success: function (data) { 
+				            $.each(data, function(index, element) {
+				                loggedTime+=element.logged;
+				            });
+				        }
+				    });
+			task.estimation.timeEstimation = task.estimation.remaining;
+			task.estimation.remaining = loggedTime;
+			console.log("task.estimation.timeEstimation: " + task.estimation.timeEstimation);
+		}
+
 		if(task.estimation != undefined && task.estimation.timeEstimation != undefined && task.estimation.remaining != undefined 
 			&& task.estimation.timeEstimation != 0 && task.estimation.remaining != 0){
 			var estimationTime = task.estimation.timeEstimation;
